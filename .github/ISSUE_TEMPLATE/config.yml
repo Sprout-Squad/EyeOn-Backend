@@ -2,4 +2,4 @@ blank_issues_enabled: false
 issue_templates:
   - name: Default Issue Template
     description: 기본 이슈 템플릿입니다.
-    file: ISSUE_TEMPLATE.md
+    file: common_issue.md
