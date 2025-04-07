@@ -1,12 +1,12 @@
 package Sprout_Squad.EyeOn.global.exception;
 
-import java.net.BindException;
 
 import Sprout_Squad.EyeOn.global.response.ErrorResponse;
 import Sprout_Squad.EyeOn.global.response.code.GlobalErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
