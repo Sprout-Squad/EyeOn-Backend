@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableJpaAuditing
 @SpringBootApplication
-@EntityScan(basePackages = "Sprout_Squad.EyeOn.domain")
 public class EyeOnApplication {
 
 	public static void main(String[] args) {
