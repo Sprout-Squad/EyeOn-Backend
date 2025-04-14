@@ -1,6 +1,7 @@
 package Sprout_Squad.EyeOn.domain.user.entity;
 
 import Sprout_Squad.EyeOn.domain.user.enums.Gender;
+import Sprout_Squad.EyeOn.global.constant.enums.TF;
 import Sprout_Squad.EyeOn.global.entity.BaseEntity;
 import jakarta.persistence.*;
 
@@ -28,5 +29,14 @@ public class User extends BaseEntity {
 
     @Column(name="address", nullable = false)
     private String address;
+
+    @Column(name="email", nullable = false)
+    private String email;
+
+    @Column(name="profile_image_url")
+    private String profileImageUrl;
+
+    @Column(name="is_blind", nullable = false)
+    private TF isBlind;
 
 }
