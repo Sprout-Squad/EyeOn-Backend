@@ -1,11 +1,18 @@
 package Sprout_Squad.EyeOn.domain.user.entity;
 
 import Sprout_Squad.EyeOn.domain.user.enums.Gender;
+import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.global.constant.enums.TF;
 import Sprout_Squad.EyeOn.global.entity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "user")
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +46,16 @@ public class User extends BaseEntity {
     @Column(name="is_blind", nullable = false)
     private TF isBlind;
 
+    public static User toEntity(SignUpReq signUpReq) {
+        return User.builder()
+                .name(signUpReq.name())
+                .residentNumber(signUpReq.residentNumber())
+                .residentDate(signUpReq.residentDate())
+                .gender(signUpReq.gender())
+                .phoneNumber(signUpReq.phoneNumber())
+                .address(signUpReq.address())
+                .email(signUpReq.email())
+                .isBlind(signUpReq.isblind())
+                .build();
+    }
 }
