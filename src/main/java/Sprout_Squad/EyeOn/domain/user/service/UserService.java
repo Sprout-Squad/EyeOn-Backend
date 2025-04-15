@@ -1,7 +1,8 @@
 package Sprout_Squad.EyeOn.domain.user.service;
 
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
+import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
 
 public interface UserService {
-    void signUp(SignUpReq signUpReq);
+    SignUpRes signUp(SignUpReq signUpReq);
 }

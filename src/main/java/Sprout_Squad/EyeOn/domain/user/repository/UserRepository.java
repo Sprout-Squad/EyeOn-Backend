@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByResidentNumber(String residentNumber);
     User findByPhoneNumber(String phoneNumber);
-    User findbyKakaoId(Long kakaoId);
+    User findByKakaoId(Long kakaoId);
 }

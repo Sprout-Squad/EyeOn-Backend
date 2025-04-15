@@ -22,7 +22,7 @@ public class SuccessResponse<T> extends BaseResponse{
     }
 
     // 200 OK 응답
-    public static <T> SuccessResponse<T> success(T data) {
+    public static <T> SuccessResponse<T> of(T data) {
         return new SuccessResponse<>(data, GlobalSuccessCode.SUCCESS_OK);
     }
 

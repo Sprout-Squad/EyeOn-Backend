@@ -36,6 +36,8 @@ public record SignUpReq(
         @Email(message = "이메일 형식이 유효하지 않습니다.")
         String email,
 
+        String profileImageUrl,
+
         @NotNull(message = "시각 장애 여부는 비어 있을 수 없습니다.")
         TF isblind
 

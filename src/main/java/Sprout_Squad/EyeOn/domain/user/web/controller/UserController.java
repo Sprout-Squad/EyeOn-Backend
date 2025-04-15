@@ -1,7 +1,12 @@
 package Sprout_Squad.EyeOn.domain.user.web.controller;
 
 import Sprout_Squad.EyeOn.domain.user.service.UserService;
+import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
+import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
+import Sprout_Squad.EyeOn.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,4 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
+
+    @PostMapping("/kakao/signUp")
+    public SuccessResponse<SignUpRes> signUp(@RequestBody SignUpReq signUpReq) {
+        SignUpRes signUpRes = userService.signUp(signUpReq);
+        return SuccessResponse.of(signUpRes);
+    }
 }

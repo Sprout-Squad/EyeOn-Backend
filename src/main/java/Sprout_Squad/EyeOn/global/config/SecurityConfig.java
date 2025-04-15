@@ -30,6 +30,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtTokenProvider jwtTokenProvider) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable) // csrf 보호 비활성화
+                .cors(cors -> {})
                 .sessionManagement((session)->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않도록
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/**").permitAll()

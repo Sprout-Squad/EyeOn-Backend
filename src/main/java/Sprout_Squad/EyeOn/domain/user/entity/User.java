@@ -51,6 +51,7 @@ public class User extends BaseEntity {
 
     public static User toEntity(SignUpReq signUpReq) {
         return User.builder()
+                .kakaoId(signUpReq.kakaoId())
                 .name(signUpReq.name())
                 .residentNumber(signUpReq.residentNumber())
                 .residentDate(signUpReq.residentDate())
@@ -58,6 +59,7 @@ public class User extends BaseEntity {
                 .phoneNumber(signUpReq.phoneNumber())
                 .address(signUpReq.address())
                 .email(signUpReq.email())
+                .profileImageUrl(signUpReq.profileImageUrl())
                 .isBlind(signUpReq.isblind())
                 .build();
     }
