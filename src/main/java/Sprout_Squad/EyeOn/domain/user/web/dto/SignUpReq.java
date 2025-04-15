@@ -8,6 +8,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record SignUpReq(
+        @NotBlank(message = "카카오 아이디는 비어 있을 수 없습니다.")
+        Long kakaoId,
+
         @NotBlank(message = "이름은 비어 있을 수 없습니다.")
         String name,
 

@@ -19,10 +19,13 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @Column(name = "kakao_id", nullable = false, unique = true)
+    private Long kakaoId;
+
     @Column(name = "user_name", nullable = false)
     private String name;
 
-    @Column(name = "resident_number", nullable = false)
+    @Column(name = "resident_number", nullable = false, unique = true)
     private String residentNumber;
 
     @Column(name = "resident_date", nullable = false)
@@ -31,7 +34,7 @@ public class User extends BaseEntity {
     @Column(name = "gender", nullable = false)
     private Gender gender;
 
-    @Column(name ="phone_number", nullable = false)
+    @Column(name ="phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(name="address", nullable = false)
