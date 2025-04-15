@@ -1,6 +1,6 @@
 package Sprout_Squad.EyeOn.domain.user.web.dto;
 
-import Sprout_Squad.EyeOn.domain.user.enums.Gender;
+import Sprout_Squad.EyeOn.domain.user.entity.enums.Gender;
 import Sprout_Squad.EyeOn.global.constant.enums.TF;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,6 +1,6 @@
 package Sprout_Squad.EyeOn.domain.user.entity;
 
-import Sprout_Squad.EyeOn.domain.user.enums.Gender;
+import Sprout_Squad.EyeOn.domain.user.entity.enums.Gender;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.global.constant.enums.TF;
 import Sprout_Squad.EyeOn.global.entity.BaseEntity;
