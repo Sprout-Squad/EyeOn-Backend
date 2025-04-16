@@ -8,31 +8,43 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@JsonPropertyOrder({"isSuccess", "timestamp", "code", "httpStatus", "message"})
-public class ErrorResponse extends BaseResponse {
+@JsonPropertyOrder({"isSuccess", "timestamp", "code", "httpStatus", "message", "data"})
+public class ErrorResponse<T> extends BaseResponse {
     private final int httpStatus;
+    private final T data;
 
     @Builder
-    public ErrorResponse(String code, String message, int httpStatus) {
+    public ErrorResponse(T data, String code, String message, int httpStatus) {
         super(false, code, message);
+        this.data = data;
         this.httpStatus = httpStatus;
     }
 
     // 기본 메시지를 그대로 사용할 떄
-    public static ErrorResponse of(BaseResponseCode baseCode) {
+    public static ErrorResponse<?> of(BaseResponseCode baseCode) {
         return ErrorResponse.builder()
                 .code(baseCode.getCode())
                 .message(baseCode.getMessage())
                 .httpStatus(baseCode.getHttpStatus())
+                .data(null)
                 .build();
     }
 
-    // 기본 메시지를 커스터마이징 할 때
-    public static ErrorResponse of(BaseResponseCode baseCode, String message) {
-        return ErrorResponse.builder()
+    public static <T> ErrorResponse<T> of(BaseResponseCode baseCode, String message) {
+        return ErrorResponse.<T>builder()
                 .code(baseCode.getCode())
                 .httpStatus(baseCode.getHttpStatus())
                 .message(message)
+                .data(null)
+                .build();
+    }
+
+    public static <T> ErrorResponse<T> of(BaseResponseCode baseCode, String message, T data) {
+        return ErrorResponse.<T>builder()
+                .code(baseCode.getCode())
+                .httpStatus(baseCode.getHttpStatus())
+                .message(message)
+                .data(data)
                 .build();
     }
 }
