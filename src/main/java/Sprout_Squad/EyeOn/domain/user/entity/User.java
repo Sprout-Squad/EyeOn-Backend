@@ -62,7 +62,7 @@ public class User extends BaseEntity {
                 .address(signUpReq.address())
                 .email(signUpReq.email())
                 .profileImageUrl(signUpReq.profileImageUrl())
-                .isBlind(signUpReq.isblind())
+                .isBlind(signUpReq.isBlind())
                 .build();
     }
 }

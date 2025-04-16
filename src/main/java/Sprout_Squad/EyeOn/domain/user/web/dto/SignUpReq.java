@@ -35,7 +35,7 @@ public record SignUpReq(
         String profileImageUrl,
 
         @NotNull(message = "시각 장애 여부는 비어 있을 수 없습니다.")
-        TF isblind
+        TF isBlind
 
 ) {
 }
