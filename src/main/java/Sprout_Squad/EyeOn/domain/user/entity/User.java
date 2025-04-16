@@ -31,6 +31,7 @@ public class User extends BaseEntity {
     @Column(name = "resident_date", nullable = false)
     private String residentDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
 
@@ -46,6 +47,7 @@ public class User extends BaseEntity {
     @Column(name="profile_image_url")
     private String profileImageUrl;
 
+    @Enumerated(EnumType.STRING)
     @Column(name="is_blind", nullable = false)
     private TF isBlind;
 
