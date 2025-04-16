@@ -49,13 +49,13 @@ public class User extends BaseEntity {
     @Column(name="is_blind", nullable = false)
     private TF isBlind;
 
-    public static User toEntity(SignUpReq signUpReq) {
+    public static User toEntity(SignUpReq signUpReq, Gender gender) {
         return User.builder()
                 .kakaoId(signUpReq.kakaoId())
                 .name(signUpReq.name())
                 .residentNumber(signUpReq.residentNumber())
                 .residentDate(signUpReq.residentDate())
-                .gender(signUpReq.gender())
+                .gender(gender)
                 .phoneNumber(signUpReq.phoneNumber())
                 .address(signUpReq.address())
                 .email(signUpReq.email())

@@ -1,6 +1,5 @@
 package Sprout_Squad.EyeOn.domain.user.web.dto;
 
-import Sprout_Squad.EyeOn.domain.user.entity.enums.Gender;
 import Sprout_Squad.EyeOn.global.constant.enums.TF;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record SignUpReq(
-        @NotBlank(message = "카카오 아이디는 비어 있을 수 없습니다.")
+        @NotNull(message = "카카오 아이디는 비어 있을 수 없습니다.")
         Long kakaoId,
 
         @NotBlank(message = "이름은 비어 있을 수 없습니다.")
@@ -21,9 +20,6 @@ public record SignUpReq(
         @NotBlank(message = "주민등록번호 발급일자는 비어 있을 수 없습니다.")
         @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\\\d|3[01])$", message = "주민등록번호 발급일자 형식이 유효하지 않습니다.")
         String residentDate,
-
-        @NotNull(message = "성별은 비어 있을 수 없습니다.")
-        Gender gender,
 
         @NotBlank(message = "전화번호는 비어 있을 수 없습니다.")
         @Pattern(regexp = "^01[0-9]-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 유효하지 않습니다.")

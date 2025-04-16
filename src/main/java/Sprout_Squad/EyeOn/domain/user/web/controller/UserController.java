@@ -4,6 +4,7 @@ import Sprout_Squad.EyeOn.domain.user.service.UserService;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +18,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/kakao/signUp")
-    public SuccessResponse<SignUpRes> signUp(@RequestBody SignUpReq signUpReq) {
+    public SuccessResponse<SignUpRes> signUp(@RequestBody @Valid SignUpReq signUpReq) {
         SignUpRes signUpRes = userService.signUp(signUpReq);
         return SuccessResponse.of(signUpRes);
     }

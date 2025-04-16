@@ -113,8 +113,9 @@ public class KakaoServiceImpl implements KakaoService {
         // 3-1. 존재하지 않는 사용자일 경우, UserNotFoundException
         if (user == null) {
             throw new UserNotFoundException(Map.of(
-                    "accessToken", accessToken,
-                    "kakaoId", kakaoId
+                    "kakaoId", kakaoId,
+                    "email", getUserInfoRes.email(),
+                    "profileImageUrl", getUserInfoRes.profileImageUrl()
             ));
         }
 

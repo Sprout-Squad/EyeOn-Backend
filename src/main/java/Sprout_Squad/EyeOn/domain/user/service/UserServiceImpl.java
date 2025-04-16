@@ -1,6 +1,7 @@
 package Sprout_Squad.EyeOn.domain.user.service;
 
 import Sprout_Squad.EyeOn.domain.user.entity.User;
+import Sprout_Squad.EyeOn.domain.user.entity.enums.Gender;
 import Sprout_Squad.EyeOn.domain.user.exception.UserAlreadyExistException;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
@@ -24,10 +25,13 @@ public class UserServiceImpl implements UserService {
         User userByResident = userRepository.findByResidentNumber(signUpReq.residentNumber());
         if(userByResident != null) throw new UserAlreadyExistException();
 
+        char genderDigit = signUpReq.residentNumber().charAt(7);
+        Gender gender = (genderDigit=='1'||genderDigit=='2')?Gender.MALE:Gender.FEMALE;
+
         User userByPhone = userRepository.findByPhoneNumber(signUpReq.phoneNumber());
         if(userByPhone != null) throw new UserAlreadyExistException();
 
-        User newUser = User.toEntity(signUpReq);
+        User newUser = User.toEntity(signUpReq, gender);
         userRepository.save(newUser);
 
         String token = jwtTokenProvider.createToken(signUpReq.kakaoId());
