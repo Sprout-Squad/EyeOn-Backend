@@ -39,9 +39,6 @@ public class UserServiceImpl implements UserService {
 
         String token = jwtTokenProvider.createToken(signUpReq.kakaoId());
 
-        HttpHeaders httpheaders = new HttpHeaders();
-        httpheaders.set("Authorization", "Bearer " + token);
-
         return SignUpRes.from(token);
     }
 
