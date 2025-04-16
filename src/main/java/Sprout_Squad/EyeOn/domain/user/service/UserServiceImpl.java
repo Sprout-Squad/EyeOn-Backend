@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -19,17 +22,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public SignUpRes signUp(SignUpReq signUpReq) {
-        User userByKakaoId = userRepository.findByKakaoId(signUpReq.kakaoId());
-        if (userByKakaoId != null) throw new UserAlreadyExistException();
+        Optional<User> userByKakaoId = userRepository.findByKakaoId(signUpReq.kakaoId());
+        if (userByKakaoId.isPresent()) throw new UserAlreadyExistException();
 
-        User userByResident = userRepository.findByResidentNumber(signUpReq.residentNumber());
-        if(userByResident != null) throw new UserAlreadyExistException();
+        Optional<User> userByResident = userRepository.findByResidentNumber(signUpReq.residentNumber());
+        if(userByResident.isPresent()) throw new UserAlreadyExistException();
 
         char genderDigit = signUpReq.residentNumber().charAt(7);
         Gender gender = (genderDigit=='1'||genderDigit=='2')?Gender.MALE:Gender.FEMALE;
 
-        User userByPhone = userRepository.findByPhoneNumber(signUpReq.phoneNumber());
-        if(userByPhone != null) throw new UserAlreadyExistException();
+        Optional<User> userByPhone = userRepository.findByPhoneNumber(signUpReq.phoneNumber());
+        if(userByPhone.isPresent()) throw new UserAlreadyExistException();
 
         User newUser = User.toEntity(signUpReq, gender);
         userRepository.save(newUser);

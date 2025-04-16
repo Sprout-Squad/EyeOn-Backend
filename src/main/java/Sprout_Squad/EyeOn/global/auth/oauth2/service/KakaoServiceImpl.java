@@ -20,6 +20,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -108,10 +109,10 @@ public class KakaoServiceImpl implements KakaoService {
         Long kakaoId = getUserInfoRes.id();
 
         // 3. DB에 사용자 존재 여부 확인
-        User user = userRepository.findByKakaoId(kakaoId);
+        Optional<User> user = userRepository.findByKakaoId(kakaoId);
 
         // 3-1. 존재하지 않는 사용자일 경우, UserNotFoundException
-        if (user == null) {
+        if (user.isEmpty()) {
             throw new UserNotFoundException(Map.of(
                     "kakaoId", kakaoId,
                     "email", getUserInfoRes.email(),
@@ -120,7 +121,7 @@ public class KakaoServiceImpl implements KakaoService {
         }
 
         // 4. 로그인에 성공하면 JWT 토큰 발급
-        String jwt = jwtTokenProvider.createToken(user.getKakaoId());
+        String jwt = jwtTokenProvider.createToken(user.get().getKakaoId());
         return KakaoLoginRes.from(jwt);
     }
 }
