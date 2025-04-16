@@ -35,7 +35,7 @@ public class KakaoServiceImpl implements KakaoService {
     @Value("${KAKAO_REDIRECT_URI}")
     private String kakaoRedirectUri;
 
-    @Value("{KAKAO_CLIENT_SECRET}")
+    @Value("${KAKAO_CLIENT_SECRET}")
     private String kakaoClientSecret;
 
 

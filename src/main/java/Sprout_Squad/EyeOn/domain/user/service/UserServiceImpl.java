@@ -8,10 +8,8 @@ import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
