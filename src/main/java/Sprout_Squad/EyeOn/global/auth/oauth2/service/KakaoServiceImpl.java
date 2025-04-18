@@ -2,7 +2,7 @@ package Sprout_Squad.EyeOn.global.auth.oauth2.service;
 
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
-import Sprout_Squad.EyeOn.global.auth.exception.UserNotFoundException;
+import Sprout_Squad.EyeOn.global.auth.exception.UserSignupRequiredException;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.GetAccessTokenRes;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.GetUserInfoRes;
@@ -113,7 +113,7 @@ public class KakaoServiceImpl implements KakaoService {
 
         // 3-1. 존재하지 않는 사용자일 경우, UserNotFoundException
         if (user.isEmpty()) {
-            throw new UserNotFoundException(Map.of(
+            throw new UserSignupRequiredException(Map.of(
                     "kakaoId", kakaoId,
                     "email", getUserInfoRes.email(),
                     "profileImageUrl", getUserInfoRes.profileImageUrl()

@@ -1,7 +1,7 @@
 package Sprout_Squad.EyeOn.global.exception;
 
 
-import Sprout_Squad.EyeOn.global.auth.exception.UserNotFoundException;
+import Sprout_Squad.EyeOn.global.auth.exception.UserSignupRequiredException;
 import Sprout_Squad.EyeOn.global.response.ErrorResponse;
 import Sprout_Squad.EyeOn.global.response.code.GlobalErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -73,8 +73,8 @@ public class GlobalExceptionHandler {
     }
 
     /* 카카오 로그인을 위한 UserNotFoundException 에러 처리 */
-    @ExceptionHandler(UserNotFoundException.class)
-    private ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException e) {
+    @ExceptionHandler(UserSignupRequiredException.class)
+    private ResponseEntity<ErrorResponse> handleUserNotFoundException(UserSignupRequiredException e) {
         log.error("UserNotFoundException error", e.getErrorCode().getMessage());
         ErrorResponse error = ErrorResponse.of(
                 e.getErrorCode(),
