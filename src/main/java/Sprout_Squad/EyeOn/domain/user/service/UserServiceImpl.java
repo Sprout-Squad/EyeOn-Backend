@@ -4,6 +4,7 @@ import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.entity.enums.Gender;
 import Sprout_Squad.EyeOn.domain.user.exception.UserAlreadyExistException;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
+import Sprout_Squad.EyeOn.domain.user.web.dto.GetUserInfoRes;
 import Sprout_Squad.EyeOn.domain.user.web.dto.ModifyUserInfoReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
@@ -52,6 +53,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getUserById(authenticationUserUtils.getCurrentUserId());
 
         user.modifyUserInfo(modifyUserInfoReq);
+    }
+
+    @Override
+    public GetUserInfoRes getUserInfo() {
+        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+        User user = userRepository.getUserById(authenticationUserUtils.getCurrentUserId());
+
+        return GetUserInfoRes.of(user);
     }
 
 

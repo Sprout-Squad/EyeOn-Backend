@@ -1,5 +1,7 @@
 package Sprout_Squad.EyeOn.domain.user.web.dto;
 
+import Sprout_Squad.EyeOn.domain.user.entity.User;
+
 public record GetUserInfoRes(
         String username,
         String profileImageUrl,
@@ -7,7 +9,13 @@ public record GetUserInfoRes(
         String phoneNumber,
         String email
 ) {
-    public static GetUserInfoRes of(String username,String profileImageUrl,String address,String phoneNumber,String email) {
-        return new GetUserInfoRes(username,profileImageUrl,address,phoneNumber,email);
+    public static GetUserInfoRes of(User user) {
+        return new GetUserInfoRes(
+                user.getName(),
+                user.getProfileImageUrl(),
+                user.getProfileImageUrl(),
+                user.getPhoneNumber(),
+                user.getEmail()
+        );
     }
 }
