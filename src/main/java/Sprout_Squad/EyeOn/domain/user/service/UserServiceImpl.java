@@ -40,4 +40,9 @@ public class UserServiceImpl implements UserService {
         return SignUpRes.from(token);
     }
 
+    @Override
+    public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq) {
+
+    }
+
 }
