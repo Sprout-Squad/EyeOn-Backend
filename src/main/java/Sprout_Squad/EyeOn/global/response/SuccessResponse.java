@@ -21,9 +21,12 @@ public class SuccessResponse<T> extends BaseResponse{
         this.httpStatus = baseResponseCode.getHttpStatus();
     }
 
-    // 200 OK 응답
     public static <T> SuccessResponse<T> of(T data) {
         return new SuccessResponse<>(data, GlobalSuccessCode.SUCCESS_OK);
+    }
+
+    public static <T> SuccessResponse<T> empty() {
+        return new SuccessResponse<>(null, GlobalSuccessCode.SUCCESS_OK);
     }
 
     public static <T> SuccessResponse<T> of(T data, BaseResponseCode baseResponseCode) {
