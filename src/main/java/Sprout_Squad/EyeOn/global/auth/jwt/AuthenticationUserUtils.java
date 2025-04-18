@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 public class AuthenticationUserUtils {
     private final UserRepository userRepository;
 
-    public String getCurrentUserId() {
+    public Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return authentication.getPrincipal().toString();
+        return Long.parseLong(authentication.getName());
     }
 }
