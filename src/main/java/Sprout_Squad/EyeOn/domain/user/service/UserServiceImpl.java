@@ -7,6 +7,7 @@ import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.domain.user.web.dto.ModifyUserInfoReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
+import Sprout_Squad.EyeOn.global.auth.jwt.AuthenticationUserUtils;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationUserUtils authenticationUserUtils;
 
     @Override
     @Transactional
@@ -47,5 +49,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq) {
     }
+
 
 }
