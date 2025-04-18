@@ -10,6 +10,7 @@ import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
+    @Transactional
     public SignUpRes signUp(SignUpReq signUpReq) {
         Optional<User> userByKakaoId = userRepository.findByKakaoId(signUpReq.kakaoId());
         if (userByKakaoId.isPresent()) throw new UserAlreadyExistException();
@@ -42,8 +44,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq) {
-
     }
 
 }
