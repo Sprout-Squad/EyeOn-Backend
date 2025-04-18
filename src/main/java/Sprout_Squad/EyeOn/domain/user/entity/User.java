@@ -53,7 +53,8 @@ public class User extends BaseEntity {
     private TF isBlind;
 
     public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq) {
-
+        this.address = modifyUserInfoReq.address();
+        this.profileImageUrl = modifyUserInfoReq.profileImageUrl();
     }
 
     public static User toEntity(SignUpReq signUpReq, Gender gender) {

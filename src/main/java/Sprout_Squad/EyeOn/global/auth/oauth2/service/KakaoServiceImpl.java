@@ -121,7 +121,7 @@ public class KakaoServiceImpl implements KakaoService {
         }
 
         // 4. 로그인에 성공하면 JWT 토큰 발급
-        String jwt = jwtTokenProvider.createToken(user.get().getKakaoId());
+        String jwt = jwtTokenProvider.createToken(user.get().getId());
         return KakaoLoginRes.from(jwt);
     }
 }

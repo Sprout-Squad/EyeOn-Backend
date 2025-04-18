@@ -41,12 +41,12 @@ public class JwtTokenProvider {
     /**
      * JWT 토큰을 생성하는 메서드
      */
-    public String createToken(Long kakaoId) {
+    public String createToken(Long id) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInSeconds);
 
         return Jwts.builder()
-                .setSubject(String.valueOf(kakaoId))
+                .setSubject(String.valueOf(id))
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(getSignKey(secretKey), SignatureAlgorithm.HS256)

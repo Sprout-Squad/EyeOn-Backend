@@ -13,7 +13,8 @@ public class AuthenticationUserUtils {
 
     public Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
+        System.out.println("auth = " + authentication);
+        System.out.println("principal = " + authentication.getPrincipal());
         return Long.parseLong(authentication.getName());
     }
 }

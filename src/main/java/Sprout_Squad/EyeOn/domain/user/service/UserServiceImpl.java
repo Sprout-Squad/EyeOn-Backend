@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
         User newUser = User.toEntity(signUpReq, gender);
         userRepository.save(newUser);
 
-        String token = jwtTokenProvider.createToken(signUpReq.kakaoId());
+        String token = jwtTokenProvider.createToken(newUser.getId());
 
         return SignUpRes.from(token);
     }
