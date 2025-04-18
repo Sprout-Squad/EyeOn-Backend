@@ -5,7 +5,7 @@ import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.UserSignupRequiredException;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.GetAccessTokenRes;
-import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.GetUserInfoRes;
+import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.GetUserKakaoInfoRes;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.KakaoLoginReq;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.KakaoLoginRes;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +74,7 @@ public class KakaoServiceImpl implements KakaoService {
      * AccessToken으로 사용자 정보 요청
      */
     @Override
-    public GetUserInfoRes getUserInfo(String accessToken) {
+    public GetUserKakaoInfoRes getUserInfo(String accessToken) {
         String kakaoUserInfoUrl = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders headers = new HttpHeaders();
@@ -93,7 +93,7 @@ public class KakaoServiceImpl implements KakaoService {
         if (body == null || body.get("id") == null) {
             throw new RuntimeException("카카오 사용자 정보 응답이 올바르지 않습니다.");
         }
-        return GetUserInfoRes.from(body);
+        return GetUserKakaoInfoRes.from(body);
     }
 
     /**
@@ -105,8 +105,8 @@ public class KakaoServiceImpl implements KakaoService {
         String accessToken = this.getAccessToken(kakaoLoginReq.code()).accessToken();
 
         // 2. 발급받은 토큰으로 사용자 정보 조회
-        GetUserInfoRes getUserInfoRes = this.getUserInfo(accessToken);
-        Long kakaoId = getUserInfoRes.id();
+        GetUserKakaoInfoRes getUserKakaoInfoRes = this.getUserInfo(accessToken);
+        Long kakaoId = getUserKakaoInfoRes.id();
 
         // 3. DB에 사용자 존재 여부 확인
         Optional<User> user = userRepository.findByKakaoId(kakaoId);
@@ -115,8 +115,8 @@ public class KakaoServiceImpl implements KakaoService {
         if (user.isEmpty()) {
             throw new UserSignupRequiredException(Map.of(
                     "kakaoId", kakaoId,
-                    "email", getUserInfoRes.email(),
-                    "profileImageUrl", getUserInfoRes.profileImageUrl()
+                    "email", getUserKakaoInfoRes.email(),
+                    "profileImageUrl", getUserKakaoInfoRes.profileImageUrl()
             ));
         }
 
