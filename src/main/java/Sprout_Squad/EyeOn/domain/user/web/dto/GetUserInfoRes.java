@@ -13,7 +13,7 @@ public record GetUserInfoRes(
         return new GetUserInfoRes(
                 user.getName(),
                 user.getProfileImageUrl(),
-                user.getProfileImageUrl(),
+                user.getAddress(),
                 user.getPhoneNumber(),
                 user.getEmail()
         );
