@@ -1,6 +1,7 @@
 package Sprout_Squad.EyeOn.domain.user.entity;
 
 import Sprout_Squad.EyeOn.domain.user.entity.enums.Gender;
+import Sprout_Squad.EyeOn.domain.user.web.dto.ModifyUserInfoReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.global.constant.enums.TF;
 import Sprout_Squad.EyeOn.global.entity.BaseEntity;
@@ -50,6 +51,10 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name="is_blind", nullable = false)
     private TF isBlind;
+
+    public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq) {
+
+    }
 
     public static User toEntity(SignUpReq signUpReq, Gender gender) {
         return User.builder()

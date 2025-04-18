@@ -4,6 +4,7 @@ import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.entity.enums.Gender;
 import Sprout_Squad.EyeOn.domain.user.exception.UserAlreadyExistException;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
+import Sprout_Squad.EyeOn.domain.user.web.dto.ModifyUserInfoReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
