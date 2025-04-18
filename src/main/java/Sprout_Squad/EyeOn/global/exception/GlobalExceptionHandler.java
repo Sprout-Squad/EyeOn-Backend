@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
 
     /* 카카오 로그인을 위한 UserNotFoundException 에러 처리 */
     @ExceptionHandler(UserSignupRequiredException.class)
-    private ResponseEntity<ErrorResponse> handleUserNotFoundException(UserSignupRequiredException e) {
+    private ResponseEntity<ErrorResponse> handleUserSignupRequiredException(UserSignupRequiredException e) {
         log.error("UserNotFoundException error", e.getErrorCode().getMessage());
         ErrorResponse error = ErrorResponse.of(
                 e.getErrorCode(),
