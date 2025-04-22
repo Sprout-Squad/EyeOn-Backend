@@ -25,6 +25,7 @@ public class Form extends BaseEntity {
     private String imageUrl;
 
     @Column(name = "form_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private DocumentType formType;
 
     @Column(name = "form_size", nullable = false)
