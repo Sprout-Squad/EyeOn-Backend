@@ -6,6 +6,7 @@ import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import java.time.LocalDateTime;
 
 public record GetFormRes(
+        Long formId,
         String name,
         LocalDateTime createdAt,
         DocumentType formType,
@@ -13,6 +14,7 @@ public record GetFormRes(
 ) {
     public static GetFormRes of(Form form){
         return new GetFormRes(
+                form.getId(),
                 form.getName(),
                 form.getCreatedAt(),
                 form.getFormType(),
