@@ -1,4 +1,4 @@
-package Sprout_Squad.EyeOn.domain.document.entity;
+package Sprout_Squad.EyeOn.domain.form.entity;
 
 import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
@@ -11,23 +11,23 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "document_form")
-public class DocumentForm extends BaseEntity {
+@Table(name = "form")
+public class Form extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "document_form_id")
+    @Column(name = "form_id")
     private Long id;
 
-    @Column(name = "document_name", nullable = false)
+    @Column(name = "form_name", nullable = false)
     private String name;
 
-    @Column(name = "document_image_url", nullable = false)
+    @Column(name = "form_image_url", nullable = false)
     private String imageUrl;
 
-    @Column(name = "document_type", nullable = false)
-    private DocumentType documentType;
+    @Column(name = "form_type", nullable = false)
+    private DocumentType formType;
 
-    @Column(name = "document_size", nullable = false)
+    @Column(name = "form_size", nullable = false)
     private Long size;
 
     @ManyToOne(fetch = FetchType.LAZY)
