@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
-        User user = userRepository.getUserById(authenticationUserUtils.getCurrentUserId());
+        User user = authenticationUserUtils.getCurrentUser();
 
         user.modifyUserInfo(modifyUserInfoReq);
     }

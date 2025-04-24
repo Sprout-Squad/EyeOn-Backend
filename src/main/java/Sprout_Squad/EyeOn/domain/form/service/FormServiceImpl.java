@@ -16,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FormServiceImpl implements FormService {
     private final FormRepository formRepository;
-    private final UserRepository userRepository;
     private final AuthenticationUserUtils authenticationUserUtils;
 
     @Override
@@ -29,7 +28,7 @@ public class FormServiceImpl implements FormService {
     @Override
     public List<GetFormRes> getAllFormsByType(DocumentType documentType) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
-        User user = userRepository.getUserById(authenticationUserUtils.getCurrentUserId());
+        User user = authenticationUserUtils.getCurrentUser();
 
         List<Form> formList = formRepository.findAllByUserAndFormType(user, documentType);
 
