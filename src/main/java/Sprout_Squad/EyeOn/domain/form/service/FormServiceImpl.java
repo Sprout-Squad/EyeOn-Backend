@@ -5,8 +5,7 @@ import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import Sprout_Squad.EyeOn.domain.form.repository.FormRepository;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
-import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
-import Sprout_Squad.EyeOn.global.auth.jwt.AuthenticationUserUtils;
+import Sprout_Squad.EyeOn.global.auth.util.AuthenticationUserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

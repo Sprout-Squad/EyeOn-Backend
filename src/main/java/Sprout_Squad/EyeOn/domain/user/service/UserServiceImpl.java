@@ -8,7 +8,7 @@ import Sprout_Squad.EyeOn.domain.user.web.dto.GetUserInfoRes;
 import Sprout_Squad.EyeOn.domain.user.web.dto.ModifyUserInfoReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
-import Sprout_Squad.EyeOn.global.auth.jwt.AuthenticationUserUtils;
+import Sprout_Squad.EyeOn.global.auth.util.AuthenticationUserUtils;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

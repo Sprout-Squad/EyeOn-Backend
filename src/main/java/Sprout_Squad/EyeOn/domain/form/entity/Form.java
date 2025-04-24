@@ -1,6 +1,6 @@
 package Sprout_Squad.EyeOn.domain.form.entity;
 
-import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
+import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.global.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -26,7 +26,7 @@ public class Form extends BaseEntity {
 
     @Column(name = "form_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private DocumentType formType;
+    private FormType formType;
 
     @Column(name = "form_size", nullable = false)
     private Long size;

@@ -1,4 +1,4 @@
-package Sprout_Squad.EyeOn.global.auth.jwt;
+package Sprout_Squad.EyeOn.global.auth.util;
 
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
