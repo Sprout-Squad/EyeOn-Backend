@@ -1,6 +1,6 @@
 package Sprout_Squad.EyeOn.domain.form.web.controller;
 
-import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
+import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.service.FormService;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
@@ -26,8 +26,8 @@ public class FormController {
 
     @GetMapping("/list")
     public SuccessResponse<List<GetFormRes>> getFormList(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam DocumentType documentType) {
-        List<GetFormRes> getFormResList = formService.getAllFormsByType(userPrincipal, documentType);
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam FormType formType) {
+        List<GetFormRes> getFormResList = formService.getAllFormsByType(userPrincipal, formType);
         return SuccessResponse.of(getFormResList);
     }
 }

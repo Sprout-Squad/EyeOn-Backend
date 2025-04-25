@@ -1,6 +1,5 @@
 package Sprout_Squad.EyeOn.domain.form.web.dto;
 
-import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
 import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 
