@@ -26,7 +26,7 @@ public class UserController {
 
     @PutMapping("/modify")
     public SuccessResponse<Void> modifyUserInfo(
-            @RequestBody @Valid ModifyUserInfoReq modifyUserInfoReq, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid ModifyUserInfoReq modifyUserInfoReq) {
         userService.modifyUserInfo(modifyUserInfoReq, userPrincipal);
         return SuccessResponse.empty();
     }
