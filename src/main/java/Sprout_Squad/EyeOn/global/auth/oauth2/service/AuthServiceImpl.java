@@ -2,7 +2,7 @@ package Sprout_Squad.EyeOn.global.auth.oauth2.service;
 
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
-import Sprout_Squad.EyeOn.global.auth.exception.UserSignupRequiredException;
+import Sprout_Squad.EyeOn.global.auth.exception.SignupRequiredException;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.GetUserKakaoInfoRes;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.KakaoLoginReq;
@@ -37,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 3-1. 존재하지 않는 사용자일 경우, UserNotFoundException
         if (user.isEmpty()) {
-            throw new UserSignupRequiredException(Map.of(
+            throw new SignupRequiredException(Map.of(
                     "kakaoId", kakaoId,
                     "email", getUserKakaoInfoRes.email(),
                     "profileImageUrl", getUserKakaoInfoRes.profileImageUrl()

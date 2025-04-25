@@ -8,7 +8,7 @@ import Sprout_Squad.EyeOn.domain.user.web.dto.*;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import Sprout_Squad.EyeOn.global.converter.OcrResultConverter;
-import Sprout_Squad.EyeOn.global.external.NaverOcrService;
+import Sprout_Squad.EyeOn.global.external.service.NaverOcrService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

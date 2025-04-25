@@ -1,5 +1,6 @@
 package Sprout_Squad.EyeOn.global.converter;
 
+import Sprout_Squad.EyeOn.global.external.exception.ImageEncodeException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ public class ImgConverter {
             byte[] bytes = file.getBytes();
             return Base64.getEncoder().encodeToString(bytes);
         } catch (IOException e) {
-            throw new RuntimeException("이미지 파일 인코딩 실패",e);
+            throw new ImageEncodeException();
         }
     }
 }

@@ -1,6 +1,7 @@
-package Sprout_Squad.EyeOn.global.external;
+package Sprout_Squad.EyeOn.global.external.service;
 
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
+import Sprout_Squad.EyeOn.global.external.exception.ClovaRequestErrorException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -77,7 +78,7 @@ public class NaverOcrService {
 
             return response.toString();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ClovaRequestErrorException();
         }
     }
 }
