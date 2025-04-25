@@ -8,7 +8,7 @@ public record GetUserKakaoInfoRes(
         String email,
         String profileImageUrl
 ){
-    public static GetUserKakaoInfoRes from(Map<String, Object> kakaoResponse) {
+    public static GetUserKakaoInfoRes of(Map<String, Object> kakaoResponse) {
         Long id = Long.valueOf(String.valueOf(kakaoResponse.get("id")));
 
         Map<String, Object> kakaoAccount = (Map<String, Object>) kakaoResponse.get("kakao_account");

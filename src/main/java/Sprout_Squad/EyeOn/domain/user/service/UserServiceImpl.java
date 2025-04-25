@@ -4,15 +4,15 @@ import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.entity.enums.Gender;
 import Sprout_Squad.EyeOn.domain.user.exception.UserAlreadyExistException;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
-import Sprout_Squad.EyeOn.domain.user.web.dto.GetUserInfoRes;
-import Sprout_Squad.EyeOn.domain.user.web.dto.ModifyUserInfoReq;
-import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
-import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
+import Sprout_Squad.EyeOn.domain.user.web.dto.*;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
+import Sprout_Squad.EyeOn.global.converter.OcrResultConverter;
+import Sprout_Squad.EyeOn.global.external.NaverOcrService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -21,6 +21,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final NaverOcrService naverOcrService;
 
     @Override
     @Transactional
@@ -61,7 +62,18 @@ public class UserServiceImpl implements UserService {
     public GetUserInfoRes getUserInfo(UserPrincipal userPrincipal) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
-        return GetUserInfoRes.of(user);
+        return GetUserInfoRes.from(user);
+    }
+
+    @Override
+    public GetResidentInfoRes getResidentInfo(MultipartFile multipartFile) {
+        // NaverOCR로 요청
+        String ocrJsonString = naverOcrService.requestOcr(multipartFile);
+
+        // 응답 파싱
+        GetResidentInfoRes getResidentInfoRes = OcrResultConverter.convertResidentInfo(ocrJsonString);
+
+        return getResidentInfoRes;
     }
 
 
