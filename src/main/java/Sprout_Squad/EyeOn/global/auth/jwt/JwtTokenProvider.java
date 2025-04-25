@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -24,6 +25,7 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
+    private final MyUserDetailsService userDetailsService;
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
@@ -67,9 +69,14 @@ public class JwtTokenProvider {
      */
     public void setSecurityContext(String token) {
         Claims claims = getClaimsFromToken(token);
+        String userId = claims.getSubject();
 
+        // 사용자 ID로 DB에서 사용자 정보 조회 -> 조회한 정보들을 바탕으로 UserPrincipal 객체 생성
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+
+        // SpringSecurity에서 사용하는 인증 객체 생성
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                claims.getSubject(), null, Collections.emptyList());
+                userDetails, null, userDetails.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(auth);
     }

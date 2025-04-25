@@ -4,7 +4,7 @@ import Sprout_Squad.EyeOn.domain.user.web.dto.GetUserInfoRes;
 import Sprout_Squad.EyeOn.domain.user.web.dto.ModifyUserInfoReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
-import com.sun.security.auth.UserPrincipal;
+import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 public interface UserService {

@@ -24,9 +24,6 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         User user = userRepository.getUserById(Long.parseLong(userId));
-
-        return new org.springframework.security.core.userdetails.User(
-                String.valueOf(user.getId()), "", Collections.emptyList()
-        );
+        return new UserPrincipal(user.getId(), user.getKakaoId());
     }
 }
