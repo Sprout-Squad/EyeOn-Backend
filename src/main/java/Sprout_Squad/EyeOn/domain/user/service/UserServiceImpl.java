@@ -10,7 +10,9 @@ import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
 import Sprout_Squad.EyeOn.global.auth.util.AuthenticationUserUtils;
 import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
+import com.sun.security.auth.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq) {
+    public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq, UserPrincipal userPrincipal) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = authenticationUserUtils.getCurrentUser();
 
@@ -56,9 +58,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public GetUserInfoRes getUserInfo() {
+    public GetUserInfoRes getUserInfo(UserPrincipal userPrincipal) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
-        User user = userRepository.getUserById(authenticationUserUtils.getCurrentUserId());
+        User user = userRepository.getUserById(userPrincipal.g);
 
         return GetUserInfoRes.of(user);
     }
