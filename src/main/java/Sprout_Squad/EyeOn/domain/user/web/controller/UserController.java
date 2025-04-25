@@ -5,9 +5,11 @@ import Sprout_Squad.EyeOn.domain.user.web.dto.GetUserInfoRes;
 import Sprout_Squad.EyeOn.domain.user.web.dto.ModifyUserInfoReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpReq;
 import Sprout_Squad.EyeOn.domain.user.web.dto.SignUpRes;
+import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,13 +25,14 @@ public class UserController {
     }
 
     @PutMapping("/modify")
-    public SuccessResponse<Void> modifyUserInfo(@RequestBody @Valid ModifyUserInfoReq modifyUserInfoReq) {
-        userService.modifyUserInfo(modifyUserInfoReq);
+    public SuccessResponse<Void> modifyUserInfo(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid ModifyUserInfoReq modifyUserInfoReq) {
+        userService.modifyUserInfo(modifyUserInfoReq, userPrincipal);
         return SuccessResponse.empty();
     }
 
     @GetMapping("/info")
-    public SuccessResponse<GetUserInfoRes> getUserInfo() {
-        return SuccessResponse.of(userService.getUserInfo());
+    public SuccessResponse<GetUserInfoRes> getUserInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return SuccessResponse.of(userService.getUserInfo(userPrincipal));
     }
 }
