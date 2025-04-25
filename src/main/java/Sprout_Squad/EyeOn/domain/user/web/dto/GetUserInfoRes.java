@@ -9,7 +9,7 @@ public record GetUserInfoRes(
         String phoneNumber,
         String email
 ) {
-    public static GetUserInfoRes of(User user) {
+    public static GetUserInfoRes from(User user) {
         return new GetUserInfoRes(
                 user.getName(),
                 user.getProfileImageUrl(),

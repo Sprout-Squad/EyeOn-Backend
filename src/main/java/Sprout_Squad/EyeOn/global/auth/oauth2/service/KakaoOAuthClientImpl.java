@@ -1,7 +1,5 @@
 package Sprout_Squad.EyeOn.global.auth.oauth2.service;
 
-import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
-import Sprout_Squad.EyeOn.global.auth.jwt.JwtTokenProvider;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.GetAccessTokenRes;
 import Sprout_Squad.EyeOn.global.auth.oauth2.web.dto.GetUserKakaoInfoRes;
 import lombok.RequiredArgsConstructor;
@@ -86,6 +84,6 @@ public class KakaoOAuthClientImpl implements KakaoOAuthClient {
         if (body == null || body.get("id") == null) {
             throw new RuntimeException("카카오 사용자 정보 응답이 올바르지 않습니다.");
         }
-        return GetUserKakaoInfoRes.from(body);
+        return GetUserKakaoInfoRes.of(body);
     }
 }

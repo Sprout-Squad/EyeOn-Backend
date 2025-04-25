@@ -4,11 +4,11 @@ import Sprout_Squad.EyeOn.global.exception.BaseException;
 
 import java.util.Map;
 
-public class UserSignupRequiredException extends BaseException {
+public class SignupRequiredException extends BaseException {
     private final Map<String, Object> extra;
 
-    public UserSignupRequiredException(Map<String, Object> extra) {
-        super(AuthErrorCode.USER_SIGN_UP_REQUIRED_404);
+    public SignupRequiredException(Map<String, Object> extra) {
+        super(AuthErrorCode.SIGN_UP_REQUIRED_404);
         this.extra = extra;
     }
 
