@@ -21,7 +21,7 @@ public class SuccessResponse<T> extends BaseResponse{
         this.httpStatus = baseResponseCode.getHttpStatus();
     }
 
-    public static <T> SuccessResponse<T> of(T data) {
+    public static <T> SuccessResponse<T> from(T data) {
         return new SuccessResponse<>(data, GlobalSuccessCode.SUCCESS_OK);
     }
 

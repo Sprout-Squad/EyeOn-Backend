@@ -21,13 +21,13 @@ public class FormController {
     public SuccessResponse<GetFormRes> getFormDetail(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long formId) {
         GetFormRes getFormRes = formService.getOneForm(userPrincipal, formId);
-        return SuccessResponse.of(getFormRes);
+        return SuccessResponse.from(getFormRes);
     }
 
     @GetMapping("/list")
     public SuccessResponse<List<GetFormRes>> getFormList(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam FormType formType) {
         List<GetFormRes> getFormResList = formService.getAllFormsByType(userPrincipal, formType);
-        return SuccessResponse.of(getFormResList);
+        return SuccessResponse.from(getFormResList);
     }
 }
