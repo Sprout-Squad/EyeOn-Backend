@@ -19,7 +19,7 @@ public class UserController {
     @PostMapping("/kakao/signUp")
     public SuccessResponse<SignUpRes> signUp(@RequestBody @Valid SignUpReq signUpReq) {
         SignUpRes signUpRes = userService.signUp(signUpReq);
-        return SuccessResponse.of(signUpRes);
+        return SuccessResponse.from(signUpRes);
     }
 
     @PutMapping("/modify")
@@ -31,11 +31,11 @@ public class UserController {
 
     @GetMapping("/info")
     public SuccessResponse<GetUserInfoRes> getUserInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return SuccessResponse.of(userService.getUserInfo(userPrincipal));
+        return SuccessResponse.from(userService.getUserInfo(userPrincipal));
     }
 
     @PostMapping("/getResidentInfo")
     public SuccessResponse<GetResidentInfoRes> getResidentInfo(@RequestParam("file") MultipartFile file) {
-        return SuccessResponse.of(userService.getResidentInfo(file));
+        return SuccessResponse.from(userService.getResidentInfo(file));
     }
 }

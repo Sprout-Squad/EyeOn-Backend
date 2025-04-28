@@ -1,11 +1,9 @@
 package Sprout_Squad.EyeOn.global.auth.jwt;
 
 import Sprout_Squad.EyeOn.global.auth.exception.AuthErrorCode;
+import Sprout_Squad.EyeOn.global.auth.exception.InvalidTokenException;
 import Sprout_Squad.EyeOn.global.exception.BaseException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -110,11 +108,17 @@ public class JwtTokenProvider {
      * 토큰이 유효한지 검증하는 메서드
      */
     public boolean validateToken(String token) {
-        try{
-            Jwts.parserBuilder().setSigningKey(getSignKey(secretKey)).build().parseClaimsJws(token);
+        if (token == null || token.isEmpty()) {
+            throw new InvalidTokenException();
+        }
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignKey(secretKey))
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new BaseException(AuthErrorCode.INVALID_TOKEN_401);
+            throw new InvalidTokenException();  // 나머지 에러는 invalid
         }
 
     }
