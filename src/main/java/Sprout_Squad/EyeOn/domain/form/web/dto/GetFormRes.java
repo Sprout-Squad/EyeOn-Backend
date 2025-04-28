@@ -11,7 +11,7 @@ public record GetFormRes(
         LocalDateTime createdAt,
         FormType formType,
         long formSize,
-        String imageUrl
+        String formUrl
 ) {
     public static GetFormRes of(Form form, long formSize){
         return new GetFormRes(
@@ -20,7 +20,7 @@ public record GetFormRes(
                 form.getCreatedAt(),
                 form.getFormType(),
                 formSize,
-                form.getImageUrl()
+                form.getFormUrl()
         );
     }
 }

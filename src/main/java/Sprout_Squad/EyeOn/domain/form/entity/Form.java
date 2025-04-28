@@ -22,8 +22,8 @@ public class Form extends BaseEntity {
     @Column(name = "form_name", nullable = false)
     private String name;
 
-    @Column(name = "form_image_url", nullable = false)
-    private String imageUrl;
+    @Column(name = "form_url", nullable = false)
+    private String formUrl;
 
     @Column(name = "form_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -36,7 +36,7 @@ public class Form extends BaseEntity {
     public static Form toEntity(MultipartFile file, String fileUrl, FormType formType, User user) {
         return Form.builder()
                 .name(file.getOriginalFilename())
-                .imageUrl(fileUrl)
+                .formUrl(fileUrl)
                 .formType(formType)
                 .user(user)
                 .build();

@@ -6,9 +6,9 @@ public record UploadFormRes(
         Long formId,
         String name,
         long formSize,
-        String imageUrl
+        String formUrl
 ) {
     public static UploadFormRes of(Form form, long size) {
-        return new UploadFormRes(form.getId(), form.getName(), size, form.getImageUrl());
+        return new UploadFormRes(form.getId(), form.getName(), size, form.getFormUrl());
     }
 }

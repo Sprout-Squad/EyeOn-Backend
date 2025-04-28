@@ -11,17 +11,15 @@ public record GetDocumentRes(
         LocalDateTime createdAt,
         DocumentType documentType,
         long documentSize,
-        String imageUrl,
         String documentUrl
 ) {
-    public static GetDocumentRes from(Document document, long fileSize) {
+    public static GetDocumentRes of(Document document, long fileSize) {
         return new GetDocumentRes(
                 document.getId(),
                 document.getDocumentName(),
                 document.getCreatedAt(),
                 document.getDocumentType(),
                 fileSize,
-                document.getDocumentImageUrl(),
                 document.getDocumentUrl());
     }
 }
