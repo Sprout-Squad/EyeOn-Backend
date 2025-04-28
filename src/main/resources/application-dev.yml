@@ -13,6 +13,15 @@ spring:
         format_sql: true
         show-sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+  cloud:
+    aws:
+      credentials:
+        access-key:
+        secret-key:
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: ${}
 
 application:
   clova:
