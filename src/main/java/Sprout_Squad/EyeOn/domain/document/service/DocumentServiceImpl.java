@@ -11,6 +11,8 @@ import Sprout_Squad.EyeOn.global.external.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
@@ -30,5 +32,20 @@ public class DocumentServiceImpl implements DocumentService {
         if(document.getUser() != user) throw new CanNotAccessException();
 
         return GetDocumentRes.of(document, s3Service.getSize(document.getDocumentUrl()));
+    }
+
+    @Override
+    public List<GetDocumentRes> getAllDocuments(UserPrincipal userPrincipal) {
+        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+        User user = userRepository.getUserById(userPrincipal.getId());
+
+        List<Document> documentList = documentRepository.findAllByUser(user);
+
+        return documentList.stream()
+                .map(document ->{
+                    long documentSize = s3Service.getSize(document.getDocumentUrl());
+                    return GetDocumentRes.of(document, documentSize);
+                })
+                .toList();
     }
 }
