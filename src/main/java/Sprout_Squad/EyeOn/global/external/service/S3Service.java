@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 
@@ -43,6 +42,15 @@ public class S3Service {
                 .build();
 
         s3Client.deleteObject(deleteObjectRequest);
+    }
 
+    public long getSize(String fileName) {
+        HeadObjectRequest headBucketRequest = HeadObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .build();
+
+        HeadObjectResponse headObjectResponse = s3Client.headObject(headBucketRequest);
+        return headObjectResponse.contentLength();
     }
 }
