@@ -2,7 +2,6 @@ package Sprout_Squad.EyeOn.domain.form.web.dto;
 
 import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
-import Sprout_Squad.EyeOn.global.external.service.S3Service;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +11,7 @@ public record GetFormRes(
         LocalDateTime createdAt,
         FormType formType,
         long formSize,
-        String imageUrl
+        String formUrl
 ) {
     public static GetFormRes of(Form form, long formSize){
         return new GetFormRes(
@@ -21,7 +20,7 @@ public record GetFormRes(
                 form.getCreatedAt(),
                 form.getFormType(),
                 formSize,
-                form.getImageUrl()
+                form.getFormUrl()
         );
     }
 }

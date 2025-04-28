@@ -12,6 +12,7 @@ import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class FormServiceImpl implements FormService {
     private final S3Service s3Service;
 
     @Override
+    @Transactional
     public UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file, FormType formType) throws IOException {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
@@ -48,7 +50,7 @@ public class FormServiceImpl implements FormService {
         // 사용자의 양식이 아닐 경우 -> CanNotAccessException
         if(form.getUser() != user) throw new CanNotAccessException();
 
-        return GetFormRes.of(form, s3Service.getSize(form.getImageUrl()));
+        return GetFormRes.of(form, s3Service.getSize(form.getFormUrl()));
     }
 
     @Override
@@ -60,7 +62,7 @@ public class FormServiceImpl implements FormService {
 
         return formList.stream()
                 .map(form -> {
-                    long formSize = s3Service.getSize(form.getImageUrl());
+                    long formSize = s3Service.getSize(form.getFormUrl());
                     return GetFormRes.of(form, formSize);
                 })
                 .toList();
