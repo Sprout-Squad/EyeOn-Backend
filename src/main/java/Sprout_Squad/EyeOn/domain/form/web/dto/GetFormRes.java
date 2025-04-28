@@ -2,7 +2,6 @@ package Sprout_Squad.EyeOn.domain.form.web.dto;
 
 import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
-import Sprout_Squad.EyeOn.global.external.service.S3Service;
 
 import java.time.LocalDateTime;
 

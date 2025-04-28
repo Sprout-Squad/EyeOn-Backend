@@ -27,11 +27,18 @@ public class Document extends BaseEntity {
     @JoinColumn(name = "form_id")
     private Form form;
 
-    @Column(name = "document_name")
+    @Column(name = "document_name", nullable = false)
     private String documentName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "document_type")
+    @Column(name = "document_type", nullable = false)
     private DocumentType documentType;
+
+    @Column(name = "document_image_url", nullable = false)
+    private String documentImageUrl;
+
+    @Column(name = "document_url", nullable = false)
+    private String documentUrl;
+
 
 }
