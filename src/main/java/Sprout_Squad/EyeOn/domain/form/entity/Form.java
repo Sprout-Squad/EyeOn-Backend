@@ -28,9 +28,6 @@ public class Form extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private FormType formType;
 
-    @Column(name = "form_size", nullable = false)
-    private Long size;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
