@@ -5,6 +5,7 @@ import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Getter
@@ -31,4 +32,13 @@ public class Form extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public static Form toEntity(MultipartFile file, String fileUrl, FormType formType, User user) {
+        return Form.builder()
+                .name(file.getOriginalFilename())
+                .imageUrl(fileUrl)
+                .formType(formType)
+                .user(user)
+                .build();
+    }
 }

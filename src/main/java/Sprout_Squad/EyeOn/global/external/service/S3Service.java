@@ -9,6 +9,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +37,8 @@ public class S3Service {
 
     }
 
-    public void deleteFile(String fileName) {
+    public void deleteFile(String fileUrl) {
+        String fileName = extractKeyFromUrl(fileUrl);
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucket)
                 .key(fileName)
@@ -44,7 +47,8 @@ public class S3Service {
         s3Client.deleteObject(deleteObjectRequest);
     }
 
-    public long getSize(String fileName) {
+    public long getSize(String fileUrl) {
+        String fileName = extractKeyFromUrl(fileUrl);
         HeadObjectRequest headBucketRequest = HeadObjectRequest.builder()
                 .bucket(bucket)
                 .key(fileName)
@@ -53,4 +57,20 @@ public class S3Service {
         HeadObjectResponse headObjectResponse = s3Client.headObject(headBucketRequest);
         return headObjectResponse.contentLength();
     }
+
+    public String extractKeyFromUrl(String fileUrl) {
+        int index = fileUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length();
+        return fileUrl.substring(index);
+    }
+
+    public String generateFileName(MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String uuid = UUID.randomUUID().toString();
+        String today = LocalDate.now().toString();
+
+        return "form/" + today + "/" + uuid + extension;
+    }
+
+
 }
