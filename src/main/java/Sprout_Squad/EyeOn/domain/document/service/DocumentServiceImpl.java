@@ -48,4 +48,20 @@ public class DocumentServiceImpl implements DocumentService {
                 })
                 .toList();
     }
+
+    @Override
+    public byte[] getSummary(UserPrincipal userPrincipal, Long id) {
+        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+        User user = userRepository.getUserById(userPrincipal.getId());
+
+        // 문서가 존재하지 않을 경우 ->  DocumentNotFoundException
+        Document document = documentRepository.getDocumentsByDocumentId(id);
+
+        // 사용자의 문서가 아닐 경우 -> CanNotAccessException
+        if(document.getUser() != user) throw new CanNotAccessException();
+
+        // open ai api에 파일을 전송하고 응답을 받아 그 응답을 pdf로 변환
+
+        return new byte[0];
+    }
 }

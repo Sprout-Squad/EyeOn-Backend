@@ -8,4 +8,5 @@ import java.util.List;
 public interface DocumentService {
     GetDocumentRes getOneDocument(UserPrincipal userPrincipal, Long id);
     List<GetDocumentRes> getAllDocuments(UserPrincipal userPrincipal);
+    byte[] getSummary(UserPrincipal userPrincipal, Long id);
 }
