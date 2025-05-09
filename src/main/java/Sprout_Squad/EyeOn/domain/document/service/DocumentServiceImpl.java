@@ -20,6 +20,9 @@ public class DocumentServiceImpl implements DocumentService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
 
+    /**
+     * 문서 양식 하나 상세 조회
+     */
     @Override
     public GetDocumentRes getOneDocument(UserPrincipal userPrincipal, Long id) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
@@ -34,6 +37,11 @@ public class DocumentServiceImpl implements DocumentService {
         return GetDocumentRes.of(document, s3Service.getSize(document.getDocumentUrl()));
     }
 
+    /**
+     *
+     * @param userPrincipal
+     * @return
+     */
     @Override
     public List<GetDocumentRes> getAllDocuments(UserPrincipal userPrincipal) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
@@ -49,6 +57,9 @@ public class DocumentServiceImpl implements DocumentService {
                 .toList();
     }
 
+    /**
+     * 요약 생성
+     */
     @Override
     public byte[] getSummary(UserPrincipal userPrincipal, Long id) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
@@ -62,6 +73,8 @@ public class DocumentServiceImpl implements DocumentService {
 
         // open ai api에 파일을 전송하고 응답을 받아 그 응답을 pdf로 변환
 
+
         return new byte[0];
     }
+
 }

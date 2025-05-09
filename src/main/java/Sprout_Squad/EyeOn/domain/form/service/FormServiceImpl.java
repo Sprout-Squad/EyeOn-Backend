@@ -25,6 +25,9 @@ public class FormServiceImpl implements FormService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
 
+    /**
+     * 사용자가 양식 업로드 (pdf, png)
+     */
     @Override
     @Transactional
     public UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file, FormType formType) throws IOException {
@@ -39,6 +42,9 @@ public class FormServiceImpl implements FormService {
         return UploadFormRes.of(form, s3Service.getSize(fileUrl));
     }
 
+    /**
+     * 양식 하나 상세 조회
+     */
     @Override
     public GetFormRes getOneForm(UserPrincipal userPrincipal, Long formId) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
@@ -53,6 +59,9 @@ public class FormServiceImpl implements FormService {
         return GetFormRes.of(form, s3Service.getSize(form.getFormUrl()));
     }
 
+    /**
+     * 타입 별 양식 모두 조회
+     */
     @Override
     public List<GetFormRes> getAllFormsByType(UserPrincipal userPrincipal, FormType formType) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
