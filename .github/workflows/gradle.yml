@@ -1,0 +1,86 @@
+name: hsu-festival
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Gradle Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build -x test
+
+      - name: Docker build
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/eyeon:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/eyeon:latest
+
+      - name: Deploy to dev
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.ENV_FILE }}" > .env
+            export $(grep -v '^#' .env | xargs)
+
+            sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/eyeon:latest
+            sudo docker stop eyeon || true
+            sudo docker rm eyeon || true
+            set -a
+            source .env
+            set +a
+            sudo docker run -d \
+              --name hsu-festival \
+              --restart always \
+              --log-driver=syslog \
+              -p 8080:8080 \
+              --env-file .env \
+              ${{ secrets.DOCKER_USERNAME }}/eyeon:latest
+            sudo docker image prune -a -f
+      
+
+      - name: Check logs
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            if sudo docker ps -a --format '{{.Names}}' | grep -q '^eyeon$'; then
+              sudo docker logs eyeon
+            else
+              echo "!!! no container !!!"
+              exit 1
+            fi
