@@ -18,7 +18,8 @@ public class OpenAiService {
 
     private static final String CHAT_URL = "https://api.openai.com/v1/chat/completions";
     private static final String SUMMARY_PROMPT = "당신은 문서를 요약하는 능력이 아주 뛰어난 사람입니다."
-            + "사진의 문서를 분석하고, 중요한 내용을 빠짐없이 요약해주세요.";
+            + "사진의 문서를 분석하고, 중요한 내용을 빠짐없이 요약해주세요. 반드시 모든 내용을 요약에 포함시켜주어야 합니다."
+            + "텍스트로 제공할 것이기 때문에 강조 표시나 볼드 표시는 필요하지 않습니다.";
 
     /**
      * 이미지 요청

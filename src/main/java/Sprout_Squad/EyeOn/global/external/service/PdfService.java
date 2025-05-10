@@ -2,6 +2,8 @@ package Sprout_Squad.EyeOn.global.external.service;
 
 import Sprout_Squad.EyeOn.global.external.exception.FileNotCreatedException;
 import Sprout_Squad.EyeOn.global.external.exception.FontNotFoundException;
+import io.awspring.cloud.s3.ObjectMetadata;
+import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -9,14 +11,18 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class PdfService {
+    private final S3Service s3Service;
 
     /**
-     * 텍스트를 pdf 파일로 변환하는 로직
+     * 텍스트를 pdf 파일로 변환하고 업로드하는 로직
      */
-    public byte[] textToPdf(String content) {
+    public String textToPdf(String content) {
         try (
                 PDDocument document = new PDDocument();
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
@@ -28,9 +34,7 @@ public class PdfService {
             // 폰트 로드
             InputStream fontStream = PdfService.class.getClassLoader()
                     .getResourceAsStream("fonts/NanumGothic.ttf");
-            if (fontStream == null) {
-                throw new FontNotFoundException();
-            }
+            if (fontStream == null) throw new FontNotFoundException();
 
             PDType0Font font = PDType0Font.load(document, fontStream);
 
@@ -50,12 +54,24 @@ public class PdfService {
             contentStream.endText();
             contentStream.close();
 
-            // PDF 바이트 반환
+
+            // PDF → 바이트 배열
             document.save(outputStream);
-            return outputStream.toByteArray();
+            byte[] pdfBytes = outputStream.toByteArray();
+
+            // 파일명 생성 및 S3 업로드
+            String fileName = generatePdfFileName();
+            String s3Key = "pdf/" + fileName;
+            return s3Service.uploadPdfBytes(s3Key, pdfBytes);
 
         } catch (Exception e) {
             throw new FileNotCreatedException();
         }
+    }
+
+    private String generatePdfFileName() {
+        String today = LocalDate.now().toString();
+        String uuid = UUID.randomUUID().toString();
+        return today + "/" + uuid + ".pdf";
     }
 }

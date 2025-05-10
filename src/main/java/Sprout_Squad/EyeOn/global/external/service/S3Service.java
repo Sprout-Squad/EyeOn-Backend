@@ -23,6 +23,7 @@ public class S3Service {
     @Value("${spring.cloud.aws.region.static}")
     private String region;
 
+    // 파일 업로드
     public String uploadFile(String fileName, MultipartFile file) throws IOException {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -34,8 +35,22 @@ public class S3Service {
 
         // URL 생성해서 리턴
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
-
     }
+
+    // base64로 인코딩된 항목을 업로드
+    public String uploadPdfBytes(String fileName, byte[] bytes) {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .contentType("application/pdf")
+                .build();
+
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
+
+        // URL 생성해서 리턴
+        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
+
 
     public void deleteFile(String fileUrl) {
         String fileName = extractKeyFromUrl(fileUrl);

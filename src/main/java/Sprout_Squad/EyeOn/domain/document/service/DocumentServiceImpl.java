@@ -79,11 +79,11 @@ public class DocumentServiceImpl implements DocumentService {
         // 1. GPT 요약 요청
         String summaryText = openAiService.getSummaryFromOpenAi(document.getDocumentImageUrl());
 
-        // 2. 텍스트 -> PDF 변환
-        byte[] pdfBytes = pdfService.textToPdf(summaryText); // PDFBox 유틸 활용
+        // 2. 텍스트 -> PDF 변환하여 저장
+        String summaryFileUrl = pdfService.textToPdf(summaryText);
 
         // 3. DTO로 반환
-        return GetSummaryRes.of(summaryText, pdfBytes);
+        return GetSummaryRes.of(summaryText, summaryFileUrl);
     }
 
 
