@@ -1,6 +1,2 @@
 # 공통 설정
-spring:
-  application:
-    name: EyeOn
-  profiles:
-    active: dev
+spring.application.name=EyeOn
