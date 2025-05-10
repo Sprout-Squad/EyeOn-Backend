@@ -26,7 +26,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final PdfService pdfService;
 
     /**
-     * 문서 양식 하나 상세 조회
+     * 사용자의 문서 양식 하나 상세 조회
      */
     @Override
     public GetDocumentRes getOneDocument(UserPrincipal userPrincipal, Long id) {
@@ -43,9 +43,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     *
-     * @param userPrincipal
-     * @return
+     * 사용자의 모든 문서 조회
      */
     @Override
     public List<GetDocumentRes> getAllDocuments(UserPrincipal userPrincipal) {
@@ -63,7 +61,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * 요약 생성
+     * 문서 요약
      */
     @Override
     public GetSummaryRes getSummary(UserPrincipal userPrincipal, Long id) {
@@ -82,7 +80,6 @@ public class DocumentServiceImpl implements DocumentService {
         // 2. 텍스트 -> PDF 변환하여 저장
         String summaryFileUrl = pdfService.textToPdf(summaryText);
 
-        // 3. DTO로 반환
         return GetSummaryRes.of(summaryText, summaryFileUrl);
     }
 
