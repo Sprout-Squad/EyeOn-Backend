@@ -62,7 +62,7 @@ jobs:
             source .env
             set +a
             sudo docker run -d \
-              --name hsu-festival \
+              --name eyeon \
               --restart always \
               --log-driver=syslog \
               -p 8080:8080 \
