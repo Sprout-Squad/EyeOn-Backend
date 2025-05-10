@@ -3,10 +3,13 @@ package Sprout_Squad.EyeOn.domain.document.service;
 import Sprout_Squad.EyeOn.domain.document.entity.Document;
 import Sprout_Squad.EyeOn.domain.document.repository.DocumentRepository;
 import Sprout_Squad.EyeOn.domain.document.web.dto.GetDocumentRes;
+import Sprout_Squad.EyeOn.domain.document.web.dto.GetSummaryRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
+import Sprout_Squad.EyeOn.global.external.service.OpenAiService;
+import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,8 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final S3Service s3Service;
+    private final OpenAiService openAiService;
+    private final PdfService pdfService;
 
     /**
      * 문서 양식 하나 상세 조회
@@ -61,7 +66,7 @@ public class DocumentServiceImpl implements DocumentService {
      * 요약 생성
      */
     @Override
-    public byte[] getSummary(UserPrincipal userPrincipal, Long id) {
+    public GetSummaryRes getSummary(UserPrincipal userPrincipal, Long id) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
@@ -71,10 +76,15 @@ public class DocumentServiceImpl implements DocumentService {
         // 사용자의 문서가 아닐 경우 -> CanNotAccessException
         if(document.getUser() != user) throw new CanNotAccessException();
 
-        // open ai api에 파일을 전송하고 응답을 받아 그 응답을 pdf로 변환
+        // 1. GPT 요약 요청
+        String summaryText = openAiService.getSummaryFromOpenAi(document.getDocumentImageUrl());
 
+        // 2. 텍스트 -> PDF 변환
+        byte[] pdfBytes = pdfService.textToPdf(summaryText); // PDFBox 유틸 활용
 
-        return new byte[0];
+        // 3. DTO로 반환
+        return GetSummaryRes.of(summaryText, pdfBytes);
     }
+
 
 }
