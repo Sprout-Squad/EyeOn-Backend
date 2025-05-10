@@ -34,9 +34,15 @@ public class Document extends BaseEntity {
     @Column(name = "document_type", nullable = false)
     private DocumentType documentType;
 
+    /**
+     * 문서 이미지
+     */
     @Column(name = "document_image_url", nullable = false)
     private String documentImageUrl;
 
+    /**
+     * 문서 pdf 파일
+     */
     @Column(name = "document_url", nullable = false)
     private String documentUrl;
 

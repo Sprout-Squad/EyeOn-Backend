@@ -1,10 +1,8 @@
 package Sprout_Squad.EyeOn.domain.document.web.controller;
 
-import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
 import Sprout_Squad.EyeOn.domain.document.service.DocumentService;
 import Sprout_Squad.EyeOn.domain.document.web.dto.GetDocumentRes;
-import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
-import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
+import Sprout_Squad.EyeOn.domain.document.web.dto.GetSummaryRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +29,12 @@ public class DocumentController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<GetDocumentRes> getDocumentResList = documentService.getAllDocuments(userPrincipal);
         return SuccessResponse.from(getDocumentResList);
+    }
+
+    @GetMapping("/summary")
+    public SuccessResponse<GetSummaryRes> getDocumentSummary(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long documentId){
+        GetSummaryRes getSummaryRes = documentService.getSummary(userPrincipal, documentId);
+        return SuccessResponse.from(getSummaryRes);
     }
 }
