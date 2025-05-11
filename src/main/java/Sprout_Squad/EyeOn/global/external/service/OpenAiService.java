@@ -22,7 +22,7 @@ public class OpenAiService {
             + "텍스트로 제공할 것이기 때문에 강조 표시나 볼드 표시는 필요하지 않습니다.";
 
     /**
-     * 이미지 요청
+     * 이미지 요약 요청
      */
     public String getSummaryFromOpenAi(String imageUrl) {
         Map<String, Object> requestBody = createRequestBody(imageUrl, SUMMARY_PROMPT);

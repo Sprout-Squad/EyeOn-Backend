@@ -6,7 +6,9 @@ import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
+import Sprout_Squad.EyeOn.global.response.code.GlobalSuccessCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,27 +23,27 @@ public class FormController {
     private final FormService formService;
 
     @PostMapping
-    public SuccessResponse<UploadFormRes> uploadForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                      @RequestPart("file") MultipartFile file,
-                                      @RequestParam("formType") FormType formType) throws IOException {
+    public ResponseEntity<SuccessResponse<UploadFormRes>> uploadForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                    @RequestPart("file") MultipartFile file,
+                                                                    @RequestParam("formType") FormType formType) throws IOException {
         /**
          * 지금은 요청에 formType 받아 넘기지만 추후에는 플라스크 서버로부터, FormType 판별 받아서 넘겨야 함
          */
         UploadFormRes uploadFormRes = formService.uploadForm(userPrincipal, file, formType);
-        return SuccessResponse.from(uploadFormRes);
+        return ResponseEntity.ok(SuccessResponse.from(uploadFormRes));
     }
 
     @GetMapping("/detail")
-    public SuccessResponse<GetFormRes> getFormDetail(
+    public ResponseEntity<SuccessResponse<GetFormRes>> getFormDetail(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long formId) {
         GetFormRes getFormRes = formService.getOneForm(userPrincipal, formId);
-        return SuccessResponse.from(getFormRes);
+        return ResponseEntity.ok(SuccessResponse.from(getFormRes));
     }
 
     @GetMapping("/list")
-    public SuccessResponse<List<GetFormRes>> getFormList(
+    public ResponseEntity<SuccessResponse<List<GetFormRes>>> getFormList(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam FormType formType) {
         List<GetFormRes> getFormResList = formService.getAllFormsByType(userPrincipal, formType);
-        return SuccessResponse.from(getFormResList);
+        return ResponseEntity.ok(SuccessResponse.from(getFormResList));
     }
 }

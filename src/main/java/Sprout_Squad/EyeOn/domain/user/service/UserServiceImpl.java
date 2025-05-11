@@ -23,6 +23,9 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final NaverOcrService naverOcrService;
 
+    /**
+     * 회원가입
+     */
     @Override
     @Transactional
     public SignUpRes signUp(SignUpReq signUpReq) {
@@ -50,6 +53,9 @@ public class UserServiceImpl implements UserService {
         return SignUpRes.from(token);
     }
 
+    /**
+     * 사용자 정보 수정
+     */
     @Override
     @Transactional
     public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq, UserPrincipal userPrincipal) {
@@ -58,6 +64,9 @@ public class UserServiceImpl implements UserService {
         user.modifyUserInfo(modifyUserInfoReq);
     }
 
+    /**
+     * 사용자 정보 조회
+     */
     @Override
     public GetUserInfoRes getUserInfo(UserPrincipal userPrincipal) {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
@@ -65,6 +74,9 @@ public class UserServiceImpl implements UserService {
         return GetUserInfoRes.from(user);
     }
 
+    /**
+     * 주민등록증 인식
+     */
     @Override
     public GetResidentInfoRes getResidentInfo(MultipartFile multipartFile) {
         // NaverOCR로 요청
