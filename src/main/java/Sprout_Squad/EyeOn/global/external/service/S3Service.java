@@ -40,7 +40,23 @@ public class S3Service {
     }
 
     /**
-     * base64로 인코딩된 항목을 업로드
+     * base64로 인코딩된 image를 업로드
+     */
+    public String uploadImageBytes(String fileName, byte[] bytes) {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .contentType("image/jpeg")
+                .build();
+
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
+
+        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
+
+
+    /**
+     * base64로 인코딩된 pdf를 업로드
      */
     public String uploadPdfBytes(String fileName, byte[] bytes) {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
