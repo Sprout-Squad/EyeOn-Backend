@@ -6,6 +6,7 @@ import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,25 +18,25 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/kakao/signUp")
-    public SuccessResponse<SignUpRes> signUp(@RequestBody @Valid SignUpReq signUpReq) {
+    public ResponseEntity<SuccessResponse<SignUpRes>> signUp(@RequestBody @Valid SignUpReq signUpReq) {
         SignUpRes signUpRes = userService.signUp(signUpReq);
-        return SuccessResponse.from(signUpRes);
+        return ResponseEntity.ok(SuccessResponse.from(signUpRes));
     }
 
     @PutMapping("/modify")
-    public SuccessResponse<Void> modifyUserInfo(
+    public ResponseEntity<SuccessResponse<Void>> modifyUserInfo(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid ModifyUserInfoReq modifyUserInfoReq) {
         userService.modifyUserInfo(modifyUserInfoReq, userPrincipal);
-        return SuccessResponse.empty();
+        return ResponseEntity.ok(SuccessResponse.empty());
     }
 
     @GetMapping("/info")
-    public SuccessResponse<GetUserInfoRes> getUserInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return SuccessResponse.from(userService.getUserInfo(userPrincipal));
+    public ResponseEntity<SuccessResponse<GetUserInfoRes>> getUserInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(SuccessResponse.from(userService.getUserInfo(userPrincipal)));
     }
 
     @PostMapping("/getResidentInfo")
-    public SuccessResponse<GetResidentInfoRes> getResidentInfo(@RequestParam("file") MultipartFile file) {
-        return SuccessResponse.from(userService.getResidentInfo(file));
+    public ResponseEntity<SuccessResponse<GetResidentInfoRes>> getResidentInfo(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(SuccessResponse.from(userService.getResidentInfo(file)));
     }
 }
