@@ -43,9 +43,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     *
-     * @param userPrincipal
-     * @return
+     * 모든 문서 조회
      */
     @Override
     public List<GetDocumentRes> getAllDocuments(UserPrincipal userPrincipal) {

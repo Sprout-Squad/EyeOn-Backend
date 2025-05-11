@@ -69,6 +69,9 @@ public class PdfService {
         }
     }
 
+    /**
+     * pdf 파일명 생성
+     */
     private String generatePdfFileName() {
         String today = LocalDate.now().toString();
         String uuid = UUID.randomUUID().toString();
