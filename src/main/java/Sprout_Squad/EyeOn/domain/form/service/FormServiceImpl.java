@@ -9,8 +9,13 @@ import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
+import Sprout_Squad.EyeOn.global.converter.ImgConverter;
+import Sprout_Squad.EyeOn.global.external.exception.TypeDetectedFiledException;
+import Sprout_Squad.EyeOn.global.external.service.FlaskService;
+import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,18 +29,40 @@ public class FormServiceImpl implements FormService {
     private final FormRepository formRepository;
     private final UserRepository userRepository;
     private final S3Service s3Service;
+    private final PdfService pdfService;
+    private final FlaskService flaskService;
+
+    /**
+     * 양식 판별
+     */
+    public FormType getFormType(MultipartFile file, String fileName) {
+        try {
+            String fileToBase64 = ImgConverter.toBase64(file);
+
+            String fileExtension = pdfService.getFileExtension(fileName);
+            String type = flaskService.detectType(fileToBase64, fileExtension);
+
+            return FormType.from(type);
+
+        } catch (Exception e){ throw new TypeDetectedFiledException(); }
+    }
 
     /**
      * 사용자가 양식 업로드 (pdf, png)
      */
     @Override
     @Transactional
-    public UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file, FormType formType) throws IOException {
+    public UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file) throws IOException {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
         String fileName = s3Service.generateFileName(file);
         String fileUrl = s3Service.uploadFile(fileName, file);
+
+        System.out.println("파일 url 생성");
+        // 플라스크 서버와 통신하여 파일 유형 받아옴
+        FormType formType = getFormType(file, fileName);
+        System.out.println("파일 탐지 완료");
 
         Form form = Form.toEntity(file, fileUrl, formType, user);
         formRepository.save(form);

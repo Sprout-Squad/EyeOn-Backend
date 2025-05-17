@@ -18,8 +18,10 @@ public enum ExternalErrorCode implements BaseResponseCode {
 
     // pdf box
     FONT_NOT_FOUND_ERROR_500("FONT_NOT_FOUND_ERROR_500", INTERNAL_SERVER_ERROR, "폰트 로드 중 에러가 발생했습니다."),
-    FILE_CREATE_FAILED_500("FILE_CREATE_FAILED_500", INTERNAL_SERVER_ERROR, "파일을 생성하는 중 에러가 발생했습니다.");
+    FILE_CREATE_FAILED_500("FILE_CREATE_FAILED_500", INTERNAL_SERVER_ERROR, "파일을 생성하는 중 에러가 발생했습니다."),
 
+    // flask
+    TYPE_DETECTED_FAIL_500("TYPE_DETECTED_FAIL_500", INTERNAL_SERVER_ERROR,"문서 유형 감지 중 에러가 발생했습니다.");
 
     private final String code;
     private final int httpStatus;

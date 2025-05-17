@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FormService {
-    UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file, FormType formType) throws IOException;
+    UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file) throws IOException;
     GetFormRes getOneForm(UserPrincipal userPrincipal, Long formId);
     List<GetFormRes> getAllFormsByType(UserPrincipal userPrincipal, FormType formType);
 }

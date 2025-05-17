@@ -24,12 +24,8 @@ public class FormController {
 
     @PostMapping
     public ResponseEntity<SuccessResponse<UploadFormRes>> uploadForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                    @RequestPart("file") MultipartFile file,
-                                                                    @RequestParam("formType") FormType formType) throws IOException {
-        /**
-         * 지금은 요청에 formType 받아 넘기지만 추후에는 플라스크 서버로부터, FormType 판별 받아서 넘겨야 함
-         */
-        UploadFormRes uploadFormRes = formService.uploadForm(userPrincipal, file, formType);
+                                                                    @RequestPart("file") MultipartFile file) throws IOException {
+        UploadFormRes uploadFormRes = formService.uploadForm(userPrincipal, file);
         return ResponseEntity.ok(SuccessResponse.from(uploadFormRes));
     }
 
