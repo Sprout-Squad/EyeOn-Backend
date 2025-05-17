@@ -59,10 +59,8 @@ public class FormServiceImpl implements FormService {
         String fileName = s3Service.generateFileName(file);
         String fileUrl = s3Service.uploadFile(fileName, file);
 
-        System.out.println("파일 url 생성");
         // 플라스크 서버와 통신하여 파일 유형 받아옴
         FormType formType = getFormType(file, fileName);
-        System.out.println("파일 탐지 완료");
 
         Form form = Form.toEntity(file, fileUrl, formType, user);
         formRepository.save(form);

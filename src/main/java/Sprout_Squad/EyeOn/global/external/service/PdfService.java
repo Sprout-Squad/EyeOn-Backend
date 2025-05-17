@@ -19,7 +19,7 @@ public class PdfService {
     private final S3Service s3Service;
 
     /**
-     * 텍스트를 pdf 파일로 변환하고 업로드하는 로직
+     * 텍스트를 pdf 파일로 변환하고 업로드하는 로직 (문서 요약에 사용)
      */
     public String textToPdf(String content) {
         try (

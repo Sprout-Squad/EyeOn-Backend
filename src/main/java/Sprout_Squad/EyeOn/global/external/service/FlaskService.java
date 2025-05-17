@@ -13,12 +13,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FlaskService {
     private final RestTemplate restTemplate;
-    private final String FLASK_API_URL = "http://3.39.215.178:5050";
+    private String baseUrl = "http://3.39.215.178:5050";
 
     /**
      * 문서 유형 탐지
      */
     public String detectType(String base64Image, String fileExt){
+        String endpoint = baseUrl + "/api/ai/detect";
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("image_base64", base64Image);
         requestBody.put("file_ext", fileExt);
@@ -28,7 +29,7 @@ public class FlaskService {
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<Map> responseEntity = restTemplate.postForEntity(FLASK_API_URL, requestEntity, Map.class);
+        ResponseEntity<Map> responseEntity = restTemplate.postForEntity(endpoint, requestEntity, Map.class);
 
         if (responseEntity.getStatusCode() == HttpStatus.OK && (Boolean) responseEntity.getBody().get("isSuccess")) {
             return (String) responseEntity.getBody().get("doc_type");
