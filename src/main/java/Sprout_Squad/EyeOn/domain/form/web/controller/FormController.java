@@ -2,6 +2,7 @@ package Sprout_Squad.EyeOn.domain.form.web.controller;
 
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.service.FormService;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormFieldRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
@@ -27,6 +28,15 @@ public class FormController {
                                                                     @RequestPart("file") MultipartFile file) throws IOException {
         UploadFormRes uploadFormRes = formService.uploadForm(userPrincipal, file);
         return ResponseEntity.ok(SuccessResponse.from(uploadFormRes));
+    }
+
+    @PostMapping("/analyze/field")
+    public ResponseEntity<SuccessResponse<GetFormFieldRes>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                         @RequestPart("file") MultipartFile file) {
+        String fileName = file.getOriginalFilename();
+
+        GetFormFieldRes getFormFieldRes = formService.getFormField(file, fileName);
+        return ResponseEntity.ok(SuccessResponse.from(getFormFieldRes));
     }
 
     @GetMapping("/detail")

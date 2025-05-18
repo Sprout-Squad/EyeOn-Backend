@@ -21,7 +21,8 @@ public enum ExternalErrorCode implements BaseResponseCode {
     FILE_CREATE_FAILED_500("FILE_CREATE_FAILED_500", INTERNAL_SERVER_ERROR, "파일을 생성하는 중 에러가 발생했습니다."),
 
     // flask
-    TYPE_DETECTED_FAIL_500("TYPE_DETECTED_FAIL_500", INTERNAL_SERVER_ERROR,"문서 유형 감지 중 에러가 발생했습니다.");
+    TYPE_DETECTED_FAILED_500("TYPE_DETECTED_FAILED_500", INTERNAL_SERVER_ERROR,"문서 유형 감지 중 에러가 발생했습니다."),
+    GET_LABEL_FAILED_500("GET_LABEL_FAILED_500", INTERNAL_SERVER_ERROR, "문서 라벨링 중 에러가 발생했습니다.");
 
     private final String code;
     private final int httpStatus;
