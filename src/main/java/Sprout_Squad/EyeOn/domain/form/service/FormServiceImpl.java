@@ -3,7 +3,7 @@ package Sprout_Squad.EyeOn.domain.form.service;
 import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.repository.FormRepository;
-import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormFieldRes;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetFieldRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
@@ -11,22 +11,21 @@ import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
-import Sprout_Squad.EyeOn.global.external.exception.GetLabelFailedException;
-import Sprout_Squad.EyeOn.global.external.exception.TypeDetectedFiledException;
-import Sprout_Squad.EyeOn.global.external.service.FlaskService;
+import Sprout_Squad.EyeOn.global.flask.exception.GetLabelFailedException;
+import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
+import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +56,7 @@ public class FormServiceImpl implements FormService {
      * 양식 필드 분석
      */
     @Override
-    public GetFormFieldRes getFormField(MultipartFile file, String fileName){
+    public GetFieldRes getFormField(MultipartFile file, String fileName){
         try {
             String fileToBase64 = ImgConverter.toBase64(file);
             String fileExtension = pdfService.getFileExtension(fileName);
@@ -71,13 +70,20 @@ public class FormServiceImpl implements FormService {
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> resultMap = mapper.readValue(jsonRes, Map.class);
 
-            String doctype = (String) resultMap.get("doctype");
             List<String> tokens = (List<String>) resultMap.get("tokens");
-            List<List<Double>> bboxes = (List<List<Double>>) resultMap.get("bboxes");
             List<String> labels = (List<String>) resultMap.get("labels");
 
-            return GetFormFieldRes.of(doctype, tokens, bboxes, labels);
+            String doctype = (String) resultMap.get("doctype");
+            List<List<?>> rawBboxes = (List<List<?>>) resultMap.get("bboxes");
+            List<List<Double>> bboxes = new ArrayList<>();
 
+            for (List<?> box : rawBboxes) {
+                List<Double> convertedBox = box.stream()
+                        .map(val -> ((Number) val).doubleValue())  // Integer, Double 모두 안전하게 처리
+                        .toList();
+                bboxes.add(convertedBox);
+            }
+            return GetFieldRes.of(doctype, tokens, bboxes, labels);
         } catch (Exception e){ throw new GetLabelFailedException();}
 
     }

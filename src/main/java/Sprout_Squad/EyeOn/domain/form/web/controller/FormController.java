@@ -2,12 +2,11 @@ package Sprout_Squad.EyeOn.domain.form.web.controller;
 
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.service.FormService;
-import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormFieldRes;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetFieldRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
-import Sprout_Squad.EyeOn.global.response.code.GlobalSuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,12 +30,12 @@ public class FormController {
     }
 
     @PostMapping("/analyze/field")
-    public ResponseEntity<SuccessResponse<GetFormFieldRes>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                         @RequestPart("file") MultipartFile file) {
+    public ResponseEntity<SuccessResponse<GetFieldRes>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                     @RequestPart("file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
 
-        GetFormFieldRes getFormFieldRes = formService.getFormField(file, fileName);
-        return ResponseEntity.ok(SuccessResponse.from(getFormFieldRes));
+        GetFieldRes getFieldRes = formService.getFormField(file, fileName);
+        return ResponseEntity.ok(SuccessResponse.from(getFieldRes));
     }
 
     @GetMapping("/{formId}/detail")

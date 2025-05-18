@@ -1,4 +1,4 @@
-package Sprout_Squad.EyeOn.global.external.service;
+package Sprout_Squad.EyeOn.global.flask.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +21,7 @@ public class FlaskService {
      * 문서 필드 분석 (라벨링)
      */
     public String getLabel(String base64Image, String fileExt) throws JsonProcessingException {
-        System.out.println("플라스크 요청 전에 들어옴");
+        System.out.println("플라스크 요청 전에 들어옴 : "+ base64Image);
         Map<String, Object> responseBody = sendFlaskPostRequest("/api/ai/create", base64Image, fileExt);
         System.out.println("플라스크 응답 받음");
         Map result = (Map) responseBody.get("result");
