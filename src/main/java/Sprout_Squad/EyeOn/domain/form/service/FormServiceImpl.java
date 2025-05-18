@@ -3,20 +3,30 @@ package Sprout_Squad.EyeOn.domain.form.service;
 import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.repository.FormRepository;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormFieldRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
+import Sprout_Squad.EyeOn.global.converter.ImgConverter;
+import Sprout_Squad.EyeOn.global.external.exception.GetLabelFailedException;
+import Sprout_Squad.EyeOn.global.external.exception.TypeDetectedFiledException;
+import Sprout_Squad.EyeOn.global.external.service.FlaskService;
+import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,18 +34,69 @@ public class FormServiceImpl implements FormService {
     private final FormRepository formRepository;
     private final UserRepository userRepository;
     private final S3Service s3Service;
+    private final PdfService pdfService;
+    private final FlaskService flaskService;
+
+    /**
+     * 양식 판별
+     */
+    @Override
+    public FormType getFormType(MultipartFile file, String fileName) {
+        try {
+            String fileToBase64 = ImgConverter.toBase64(file);
+
+            String fileExtension = pdfService.getFileExtension(fileName);
+            String type = flaskService.detectType(fileToBase64, fileExtension);
+
+            return FormType.from(type);
+
+        } catch (Exception e){ throw new TypeDetectedFiledException(); }
+    }
+
+    /**
+     * 양식 필드 분석
+     */
+    @Override
+    public GetFormFieldRes getFormField(MultipartFile file, String fileName){
+        try {
+            String fileToBase64 = ImgConverter.toBase64(file);
+            String fileExtension = pdfService.getFileExtension(fileName);
+
+            // 플라스크 요청
+            String jsonRes = flaskService.getLabel(fileToBase64, fileExtension);
+
+//            String labelFileName = "labels/" + UUID.randomUUID() + ".json";
+//            String labelUrl = s3Service.uploadJson(labelFileName, jsonRes);
+
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> resultMap = mapper.readValue(jsonRes, Map.class);
+
+            String doctype = (String) resultMap.get("doctype");
+            List<String> tokens = (List<String>) resultMap.get("tokens");
+            List<List<Double>> bboxes = (List<List<Double>>) resultMap.get("bboxes");
+            List<String> labels = (List<String>) resultMap.get("labels");
+
+            return GetFormFieldRes.of(doctype, tokens, bboxes, labels);
+
+        } catch (Exception e){ throw new GetLabelFailedException();}
+
+    }
+
 
     /**
      * 사용자가 양식 업로드 (pdf, png)
      */
     @Override
     @Transactional
-    public UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file, FormType formType) throws IOException {
+    public UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file) throws IOException {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
         String fileName = s3Service.generateFileName(file);
         String fileUrl = s3Service.uploadFile(fileName, file);
+
+        // 플라스크 서버와 통신하여 파일 유형 받아옴
+        FormType formType = getFormType(file, fileName);
 
         Form form = Form.toEntity(file, fileUrl, formType, user);
         formRepository.save(form);

@@ -2,7 +2,6 @@ package Sprout_Squad.EyeOn.global.external.service;
 
 import Sprout_Squad.EyeOn.global.external.exception.FileNotCreatedException;
 import Sprout_Squad.EyeOn.global.external.exception.FontNotFoundException;
-import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
@@ -20,7 +19,7 @@ public class PdfService {
     private final S3Service s3Service;
 
     /**
-     * 텍스트를 pdf 파일로 변환하고 업로드하는 로직
+     * 텍스트를 pdf 파일로 변환하고 업로드하는 로직 (문서 요약에 사용)
      */
     public String textToPdf(String content) {
         try (
@@ -76,5 +75,16 @@ public class PdfService {
         String today = LocalDate.now().toString();
         String uuid = UUID.randomUUID().toString();
         return today + "/" + uuid + ".pdf";
+    }
+
+    /**
+     * 확장자 명 추출
+     */
+    public String getFileExtension(String filename) {
+        if (filename != null && filename.contains(".")) {
+            return filename.substring(filename.lastIndexOf('.') + 1);
+        } else {
+            return "jpg";
+        }
     }
 }

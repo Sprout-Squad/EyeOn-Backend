@@ -2,6 +2,7 @@ package Sprout_Squad.EyeOn.domain.form.web.controller;
 
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.service.FormService;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormFieldRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
@@ -24,18 +25,23 @@ public class FormController {
 
     @PostMapping
     public ResponseEntity<SuccessResponse<UploadFormRes>> uploadForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                    @RequestPart("file") MultipartFile file,
-                                                                    @RequestParam("formType") FormType formType) throws IOException {
-        /**
-         * 지금은 요청에 formType 받아 넘기지만 추후에는 플라스크 서버로부터, FormType 판별 받아서 넘겨야 함
-         */
-        UploadFormRes uploadFormRes = formService.uploadForm(userPrincipal, file, formType);
+                                                                    @RequestPart("file") MultipartFile file) throws IOException {
+        UploadFormRes uploadFormRes = formService.uploadForm(userPrincipal, file);
         return ResponseEntity.ok(SuccessResponse.from(uploadFormRes));
     }
 
-    @GetMapping("/detail")
+    @PostMapping("/analyze/field")
+    public ResponseEntity<SuccessResponse<GetFormFieldRes>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                         @RequestPart("file") MultipartFile file) {
+        String fileName = file.getOriginalFilename();
+
+        GetFormFieldRes getFormFieldRes = formService.getFormField(file, fileName);
+        return ResponseEntity.ok(SuccessResponse.from(getFormFieldRes));
+    }
+
+    @GetMapping("/{formId}/detail")
     public ResponseEntity<SuccessResponse<GetFormRes>> getFormDetail(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long formId) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long formId) {
         GetFormRes getFormRes = formService.getOneForm(userPrincipal, formId);
         return ResponseEntity.ok(SuccessResponse.from(getFormRes));
     }
