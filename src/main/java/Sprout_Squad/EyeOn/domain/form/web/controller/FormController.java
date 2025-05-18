@@ -39,9 +39,9 @@ public class FormController {
         return ResponseEntity.ok(SuccessResponse.from(getFormFieldRes));
     }
 
-    @GetMapping("/detail")
+    @GetMapping("/{formId}/detail")
     public ResponseEntity<SuccessResponse<GetFormRes>> getFormDetail(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long formId) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long formId) {
         GetFormRes getFormRes = formService.getOneForm(userPrincipal, formId);
         return ResponseEntity.ok(SuccessResponse.from(getFormRes));
     }
