@@ -18,9 +18,9 @@ import java.util.List;
 public class DocumentController {
     private final DocumentService documentService;
 
-    @GetMapping("/detail")
+    @GetMapping("/{documentId}/detail")
     public ResponseEntity<SuccessResponse<GetDocumentRes>> getDocumentDetail(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long documentId) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long documentId) {
         GetDocumentRes getDocumentRes = documentService.getOneDocument(userPrincipal, documentId);
         return ResponseEntity.ok(SuccessResponse.from(getDocumentRes));
     }
