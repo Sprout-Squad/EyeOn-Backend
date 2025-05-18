@@ -12,7 +12,7 @@ public enum FormType {
      */
     public static FormType from(String type) {
         if (type == null) {
-            throw new IllegalArgumentException("문서 타입 문자열이 null입니다.");
+            throw new IllegalArgumentException("양식 타입 문자열이 null입니다.");
         }
 
         switch (type.toLowerCase()) {
@@ -27,7 +27,7 @@ public enum FormType {
             case "report":
                 return REPORT;
             default:
-                throw new IllegalArgumentException("정의되지 않은 문서 타입: " + type);
+                throw new IllegalArgumentException("정의되지 않은 양식 타입: " + type);
         }
     }
 }

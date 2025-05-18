@@ -32,9 +32,9 @@ public class DocumentController {
         return ResponseEntity.ok(SuccessResponse.from(getDocumentResList));
     }
 
-    @GetMapping("/summary")
+    @GetMapping("/{documentId}/summary")
     public ResponseEntity<SuccessResponse<GetSummaryRes>> getDocumentSummary(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long documentId){
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long documentId){
         GetSummaryRes getSummaryRes = documentService.getSummary(userPrincipal, documentId);
         return ResponseEntity.ok(SuccessResponse.from(getSummaryRes));
     }
