@@ -26,7 +26,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final PdfService pdfService;
 
     /**
-     * 문서 양식 하나 상세 조회
+     * 사용자의 문서 양식 하나 상세 조회
      */
     @Override
     public GetDocumentRes getOneDocument(UserPrincipal userPrincipal, Long id) {
@@ -43,7 +43,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * 모든 문서 조회
+     * 사용자의 모든 문서 조회
      */
     @Override
     public List<GetDocumentRes> getAllDocuments(UserPrincipal userPrincipal) {
@@ -61,7 +61,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * 요약 생성
+     * 문서 요약
      */
     @Override
     public GetSummaryRes getSummary(UserPrincipal userPrincipal, Long id) {

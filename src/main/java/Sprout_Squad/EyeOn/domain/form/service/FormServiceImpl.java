@@ -92,6 +92,10 @@ public class FormServiceImpl implements FormService {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
+        /**
+         * pdf일 경우, pdf to img 로직 필요
+         */
+
         String fileName = s3Service.generateFileName(file);
         String fileUrl = s3Service.uploadFile(fileName, file);
 
