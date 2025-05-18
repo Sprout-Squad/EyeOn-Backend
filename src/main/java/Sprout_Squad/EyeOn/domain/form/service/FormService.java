@@ -1,6 +1,7 @@
 package Sprout_Squad.EyeOn.domain.form.service;
 
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormFieldRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
@@ -10,7 +11,9 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FormService {
-    UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file, FormType formType) throws IOException;
+    UploadFormRes uploadForm(UserPrincipal userPrincipal, MultipartFile file) throws IOException;
     GetFormRes getOneForm(UserPrincipal userPrincipal, Long formId);
     List<GetFormRes> getAllFormsByType(UserPrincipal userPrincipal, FormType formType);
+    FormType getFormType(MultipartFile file, String fileName);
+    GetFormFieldRes getFormField(MultipartFile file, String fileName);
 }

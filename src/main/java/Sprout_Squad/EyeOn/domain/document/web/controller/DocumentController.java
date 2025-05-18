@@ -6,6 +6,7 @@ import Sprout_Squad.EyeOn.domain.document.web.dto.GetSummaryRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,24 +18,24 @@ import java.util.List;
 public class DocumentController {
     private final DocumentService documentService;
 
-    @GetMapping("/detail")
-    public SuccessResponse<GetDocumentRes> getDocumentDetail(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long documentId) {
+    @GetMapping("/{documentId}/detail")
+    public ResponseEntity<SuccessResponse<GetDocumentRes>> getDocumentDetail(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long documentId) {
         GetDocumentRes getDocumentRes = documentService.getOneDocument(userPrincipal, documentId);
-        return SuccessResponse.from(getDocumentRes);
+        return ResponseEntity.ok(SuccessResponse.from(getDocumentRes));
     }
 
     @GetMapping("/list")
-    public SuccessResponse<List<GetDocumentRes>> getDocumentList(
+    public ResponseEntity<SuccessResponse<List<GetDocumentRes>>> getDocumentList(
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<GetDocumentRes> getDocumentResList = documentService.getAllDocuments(userPrincipal);
-        return SuccessResponse.from(getDocumentResList);
+        return ResponseEntity.ok(SuccessResponse.from(getDocumentResList));
     }
 
-    @GetMapping("/summary")
-    public SuccessResponse<GetSummaryRes> getDocumentSummary(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Long documentId){
+    @GetMapping("/{documentId}/summary")
+    public ResponseEntity<SuccessResponse<GetSummaryRes>> getDocumentSummary(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long documentId){
         GetSummaryRes getSummaryRes = documentService.getSummary(userPrincipal, documentId);
-        return SuccessResponse.from(getSummaryRes);
+        return ResponseEntity.ok(SuccessResponse.from(getSummaryRes));
     }
 }

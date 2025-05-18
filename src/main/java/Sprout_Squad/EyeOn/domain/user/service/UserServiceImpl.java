@@ -53,7 +53,6 @@ public class UserServiceImpl implements UserService {
         return SignUpRes.from(token);
     }
 
-
     /**
      * 사용자 정보 수정
      */

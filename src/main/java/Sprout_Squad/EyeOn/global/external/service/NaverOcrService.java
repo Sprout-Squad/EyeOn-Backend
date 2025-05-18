@@ -23,6 +23,9 @@ public class NaverOcrService {
     @Value("${application.clova.ocr.api-url}")
     private String apiUrl;
 
+    /**
+     * OCR 요청
+     */
     public String requestOcr(MultipartFile multipartFile){
         try{
             // Base64로 변환
