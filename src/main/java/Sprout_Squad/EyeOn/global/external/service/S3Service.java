@@ -1,5 +1,6 @@
 package Sprout_Squad.EyeOn.global.external.service;
 
+import Sprout_Squad.EyeOn.global.external.exception.S3UrlInvalidException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -38,6 +41,22 @@ public class S3Service {
         // URL 생성해서 리턴
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
     }
+
+    /**
+     * base64로 인코딩된 image를 업로드
+     */
+    public String uploadImageBytes(String fileName, byte[] bytes) {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .contentType("image/jpeg")
+                .build();
+
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
+
+        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
+
 
     /**
      * json 업로드
@@ -103,8 +122,16 @@ public class S3Service {
      * S3 url에서 Key 값 추출
      */
     public String extractKeyFromUrl(String fileUrl) {
-        int index = fileUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length();
-        return fileUrl.substring(index);
+        try {
+            URI uri = new URI(fileUrl);
+            String path = uri.getPath();
+            if (path == null || path.length() <= 1) {
+                throw new S3UrlInvalidException();
+            }
+            return path.substring(1);
+        } catch (URISyntaxException e) {
+            throw new S3UrlInvalidException();
+        }
     }
 
     /**

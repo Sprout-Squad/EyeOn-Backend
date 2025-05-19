@@ -3,19 +3,23 @@ package Sprout_Squad.EyeOn.domain.form.service;
 import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.repository.FormRepository;
-import Sprout_Squad.EyeOn.domain.form.web.dto.GetFieldRes;
-import Sprout_Squad.EyeOn.domain.form.web.dto.GetModelRes;
-import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
-import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
+<<<<<<< HEAD
+import Sprout_Squad.EyeOn.domain.form.web.dto.*;
+=======
+>>>>>>> 9b25ef7e1217a89f8b1a7ea1d3ad27532024dc10
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
+<<<<<<< HEAD
 import Sprout_Squad.EyeOn.global.flask.exception.GetLabelFailedException;
 import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
 import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
 import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
+=======
+import Sprout_Squad.EyeOn.global.external.exception.UnsupportedFileTypeException;
+>>>>>>> 9b25ef7e1217a89f8b1a7ea1d3ad27532024dc10
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +43,7 @@ public class FormServiceImpl implements FormService {
     private final PdfService pdfService;
     private final FlaskService flaskService;
     private final FieldLabelMapper fieldLabelMapper;
+
     /**
      * 양식 판별
      */
@@ -156,7 +161,6 @@ public class FormServiceImpl implements FormService {
         return userInputs;
     }
 
-
     /**
      * 사용자가 양식 업로드 (pdf, png)
      */
@@ -166,12 +170,25 @@ public class FormServiceImpl implements FormService {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
-        /**
-         * pdf일 경우, pdf to img 로직 필요
-         */
+        String extension = pdfService.getFileExtension(file.getOriginalFilename()).toLowerCase();
 
-        String fileName = s3Service.generateFileName(file);
-        String fileUrl = s3Service.uploadFile(fileName, file);
+        String fileUrl;
+        String fileName;
+
+        if (extension.equals("pdf")) {
+            // PDF -> 이미지 변환
+            byte[] pdfBytes = file.getBytes();
+            fileUrl = pdfService.convertPdfToImage(pdfBytes);
+            fileName = s3Service.extractKeyFromUrl(fileUrl); // 변환된 이미지의 S3 key
+        } else if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png")) {
+            fileName = s3Service.generateFileName(file);
+            fileUrl = s3Service.uploadFile(fileName, file);
+        } else {
+            throw new UnsupportedFileTypeException();
+        }
+
+        System.out.println("fileName : " + fileName);
+        System.out.println("fileUrl : " + fileUrl);
 
         // 플라스크 서버와 통신하여 파일 유형 받아옴
         FormType formType = getFormType(file, fileName);

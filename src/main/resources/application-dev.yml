@@ -10,9 +10,12 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: true
-        show-sql: true
+        format_sql: false
+        show-sql: false
         dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc:
+          time_zone: UTC
+
   cloud:
     aws:
       credentials:

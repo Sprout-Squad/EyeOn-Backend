@@ -25,14 +25,14 @@ public class FormController {
 
     @PostMapping
     public ResponseEntity<SuccessResponse<UploadFormRes>> uploadForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                    @RequestPart("file") MultipartFile file) throws IOException {
+                                                                     @RequestPart("file") MultipartFile file) throws IOException {
         UploadFormRes uploadFormRes = formService.uploadForm(userPrincipal, file);
         return ResponseEntity.ok(SuccessResponse.from(uploadFormRes));
     }
 
     @PostMapping("/analyze/field")
     public ResponseEntity<SuccessResponse<List<GetFieldRes>>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                     @RequestPart("file") MultipartFile file) {
+                                                                           @RequestPart("file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
 
         GetModelRes getModelRes = formService.getResFromModel(file, fileName);
