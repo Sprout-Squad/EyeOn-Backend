@@ -1,0 +1,116 @@
+{
+  "resume": {
+    "B-HEADER-EDU" : "학력사항",
+    "B-HEADER-CERTIFICATE" : "자격 및 면허",
+    "B-HEADER-WORK" : "경력사항",
+    "B-HEADER-PERSONAL" : "인적사항",
+    "B-HEADER-MILITARY" : "병역사항",
+
+    "B-PERSONAL-PHOTO" : "사진",
+    "B-PERSONAL-NAME" : "이름",
+    "B-PERSONAL-RRN" : "주민등록번호",
+    "B-PERSONAL-PHONE" : "연락처",
+    "B-PERSONAL-ADDR" : "주소",
+    "B-PERSONAL-EMAIL" : "이메일",
+
+    "B-EDU-PERIOD" : "재학 기간",
+    "B-EDU-NAME" : "학교명",
+    "B-EDU-MAJOR" : "학과",
+    "B-EDU-GPA" : "학점",
+
+    "B-WORK-PERIOD" : "재직 기간",
+    "B-WORK-PLACE" : "업체명",
+    "B-WORK-POSITION" : "직위",
+    "B-WORK-DUTY" : "담당업무",
+
+    "B-CERTIFICATE-DATE" : "자격증 취득일",
+    "B-CERTIFICATE-NAME" : "자격증 명",
+    "B-CERTIFICATE-SCORE" : "점수(급)",
+    "B-CERTIFICATE-ORG" : "기관명",
+
+    "B-MILITARY-PERIOD": "병역 기간",
+    "B-MILITARY-STATUS": "병역여부",
+    "B-MILITARY-TYPE": "군별",
+    "B-MILITARY-RANK": "계급"
+  },
+
+  "certificate": {
+    "B-DOC-TYPE": "문서종류",
+    "B-HEADER-PERSONAL": "인적사항",
+    "B-PERSONAL-NAME": "이름",
+    "B-PERSONAL-RRN": "주민등록번호",
+    "B-PERSONAL-ADDR": "주소",
+
+    "B-HEADER-EMPLOY": "재직사항",
+    "B-EMPLOY-DEPT": "부서",
+    "B-EMPLOY-POSITION": "직위",
+    "B-EMPLOY-PERIOD": "기간",
+    "B-PURPOSE": "용도",
+    "B-SIGN-YEAR": "년",
+    "B-SIGN-MONTH": "월",
+    "B-SIGN-DAY": "일",
+    "B-PLACE-ADDR": "근무지 주소",
+    "B-PLACE-NAME": "회사명",
+    "B-CEO-SIGN": "대표이사",
+    "SIGN-SEAL": "서명"
+  },
+
+  "consent": {
+    "B-DOC-TYPE": "위임장",
+    "B-HEADER-GRANTOR": "위임자(본인)",
+    "B-GRANTOR-NAME": "이름",
+    "B-GRANTOR-RRN": "주민등록번호",
+    "B-GRANTOR-ADDR": "주소",
+    "B-GRANTOR-PHONE": "연락처",
+    "B-GRANTOR-REASON": "위임사유",
+    "B-HEADER-DELEGATE": "수임자(대리인)",
+    "B-DELEGATE-NAME": "이름",
+    "B-DELEGATE-RRN": "주민등록번호",
+    "B-DELEGATE-ADDR": "주소",
+    "B-DELEGATE-PHONE": "연락처",
+    "B-DELEGATE-RELATION": "관계",
+    "B-GRANT-CONTENT": "위임내용",
+    "B-SIGN-YEAR": "년",
+    "B-SIGN-MONTH": "월",
+    "B-SIGN-DAY": "일",
+    "B-SIGN-NAME": "위임자",
+    "SIGN-SEAL": "서명"
+  },
+
+  "self_intro": {
+    "B-DOC-TYPE": "자기소개서",
+    "B-SELF-GROWTH": "성장과정",
+    "B-ACADEMIC-LIFE": "학창시절",
+    "B-PERSONALITY": "성격소개",
+    "B-MOTIVATION-FUTURE": "지원동기 및 포부"
+  },
+
+  "report": {
+    "B-DOC-TYPE": "일일업무보고서",
+    "B-DATE": "날짜",
+    "B-NAME": "성명",
+    "B-DEPT": "부서",
+    "B-POSITION": "직책",
+    "B-HEADER-TODAY-WORK": "금일 업무 요약",
+    "B-TODAY-WORK-TIME": "업무 시간",
+    "B-TODAY-WORK-TITLE": "업무명",
+    "B-TODAY-WORK-DETAIL": "상세 내용",
+    "B-TODAY-WORK-NOTE": "특이사항",
+    "B-HEADER-TOMORROW-WORK": "익일 업무 계획",
+    "B-TOMORROW-WORK-AM-PLAN": "오전 업무 계획",
+    "B-TOMORROW-WORK-PM-PLAN": "오후 업무 계획",
+    "B-REPORT-ISSUE": "건의 및 보고사항"
+  },
+
+  "common": {
+    "년": "B-SIGN-YEAR",
+    "월": "B-SIGN-MONTH",
+    "일": "B-SIGN-DAY",
+    "지원자": "B-SIGN-NAME",
+    "작성일자": "B-DATE-DOCUMENT",
+    "작성일": "B-DATE-DOCUMENT",
+    "위임자": "B-SIGN-NAME",
+    "(인)": "SIGN-SEAL",
+    "(서명)": "SIGN-SEAL"
+  }
+}

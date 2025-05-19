@@ -26,7 +26,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final PdfService pdfService;
 
     /**
-     * 사용자의 문서 양식 하나 상세 조회
+     * 사용자의 문서 하나 상세 조회
      */
     @Override
     public GetDocumentRes getOneDocument(UserPrincipal userPrincipal, Long id) {

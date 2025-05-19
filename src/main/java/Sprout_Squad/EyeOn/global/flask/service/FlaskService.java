@@ -21,10 +21,9 @@ public class FlaskService {
      * 문서 필드 분석 (라벨링)
      */
     public String getLabel(String base64Image, String fileExt) throws JsonProcessingException {
-        System.out.println("플라스크 요청 전에 들어옴 : "+ base64Image);
         Map<String, Object> responseBody = sendFlaskPostRequest("/api/ai/create", base64Image, fileExt);
-        System.out.println("플라스크 응답 받음");
         Map result = (Map) responseBody.get("result");
+        System.out.println("결과 : " + result);
         return objectMapper.writeValueAsString(result);  // result 전체를 JSON 문자열로 변환
     }
 

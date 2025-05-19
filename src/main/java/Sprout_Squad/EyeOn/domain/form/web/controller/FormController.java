@@ -3,6 +3,7 @@ package Sprout_Squad.EyeOn.domain.form.web.controller;
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.service.FormService;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFieldRes;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetModelRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
@@ -30,12 +31,14 @@ public class FormController {
     }
 
     @PostMapping("/analyze/field")
-    public ResponseEntity<SuccessResponse<GetFieldRes>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    public ResponseEntity<SuccessResponse<List<GetFieldRes>>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                      @RequestPart("file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
 
-        GetFieldRes getFieldRes = formService.getFormField(file, fileName);
-        return ResponseEntity.ok(SuccessResponse.from(getFieldRes));
+        GetModelRes getModelRes = formService.getResFromModel(file, fileName);
+        List<GetFieldRes> getFieldResList = formService.getField(getModelRes, userPrincipal);
+
+        return ResponseEntity.ok(SuccessResponse.from(getFieldResList));
     }
 
     @GetMapping("/{formId}/detail")

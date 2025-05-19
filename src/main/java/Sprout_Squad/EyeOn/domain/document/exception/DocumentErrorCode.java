@@ -9,7 +9,7 @@ import static Sprout_Squad.EyeOn.global.constant.StaticValue.NOT_FOUND;
 @Getter
 @AllArgsConstructor
 public enum DocumentErrorCode implements BaseResponseCode {
-    DOCUMENT_NOT_FOUND_404("DOCUMNET_NOT_FOUND_404", NOT_FOUND, "문서를 찾을 수 없습니다.");
+    DOCUMENT_NOT_FOUND_404("DOCUMENT_NOT_FOUND_404", NOT_FOUND, "문서를 찾을 수 없습니다.");
 
     private final String code;
     private final int httpStatus;

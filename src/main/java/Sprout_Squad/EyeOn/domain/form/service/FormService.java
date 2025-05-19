@@ -2,6 +2,7 @@ package Sprout_Squad.EyeOn.domain.form.service;
 
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFieldRes;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetModelRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
@@ -15,5 +16,6 @@ public interface FormService {
     GetFormRes getOneForm(UserPrincipal userPrincipal, Long formId);
     List<GetFormRes> getAllFormsByType(UserPrincipal userPrincipal, FormType formType);
     FormType getFormType(MultipartFile file, String fileName);
-    GetFieldRes getFormField(MultipartFile file, String fileName);
+    GetModelRes getResFromModel(MultipartFile file, String fileName);
+    List<GetFieldRes> getField(GetModelRes getModelRes, UserPrincipal userPrincipal);
 }

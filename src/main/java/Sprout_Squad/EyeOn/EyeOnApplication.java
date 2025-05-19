@@ -13,6 +13,7 @@ public class EyeOnApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(EyeOnApplication.class, args);
+
 	}
 
 	@Bean

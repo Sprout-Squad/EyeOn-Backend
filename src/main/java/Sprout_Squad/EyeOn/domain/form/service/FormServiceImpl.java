@@ -4,6 +4,7 @@ import Sprout_Squad.EyeOn.domain.form.entity.Form;
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.repository.FormRepository;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFieldRes;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetModelRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
@@ -11,6 +12,7 @@ import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
+import Sprout_Squad.EyeOn.global.flask.enums.LabelGroup;
 import Sprout_Squad.EyeOn.global.flask.exception.GetLabelFailedException;
 import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
 import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
@@ -56,7 +58,7 @@ public class FormServiceImpl implements FormService {
      * 양식 필드 분석
      */
     @Override
-    public GetFieldRes getFormField(MultipartFile file, String fileName){
+    public GetModelRes getResFromModel(MultipartFile file, String fileName){
         try {
             String fileToBase64 = ImgConverter.toBase64(file);
             String fileExtension = pdfService.getFileExtension(fileName);
@@ -64,28 +66,85 @@ public class FormServiceImpl implements FormService {
             // 플라스크 요청
             String jsonRes = flaskService.getLabel(fileToBase64, fileExtension);
 
-//            String labelFileName = "labels/" + UUID.randomUUID() + ".json";
-//            String labelUrl = s3Service.uploadJson(labelFileName, jsonRes);
-
+            // jsonRes를 파싱
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> resultMap = mapper.readValue(jsonRes, Map.class);
 
+            // tokens: 문서에서 추출된 텍스트 조각
             List<String> tokens = (List<String>) resultMap.get("tokens");
-            List<String> labels = (List<String>) resultMap.get("labels");
+            System.out.println("문서 tokens: "+ tokens);
 
+            // labels: 각 토큰의 labels
+            List<String> labels = (List<String>) resultMap.get("labels");
+            System.out.println("문서 labels: "+labels);
+
+            // doctype: 문서 유형
             String doctype = (String) resultMap.get("doctype");
+
+            // rawBboxes: 각 토큰의 bounding box 좌표 정보
             List<List<?>> rawBboxes = (List<List<?>>) resultMap.get("bboxes");
+
+            // bboxes: 각 토큰의 bounding box 좌표 정보
             List<List<Double>> bboxes = new ArrayList<>();
 
+            // List<?> 형태로 파싱된 좌표 데이터를 List<Double>로 변환
             for (List<?> box : rawBboxes) {
                 List<Double> convertedBox = box.stream()
-                        .map(val -> ((Number) val).doubleValue())  // Integer, Double 모두 안전하게 처리
+                        .map(val -> ((Number) val).doubleValue()) // JSON 파싱 결과가 Number 타입 -> 형변환 필요
                         .toList();
                 bboxes.add(convertedBox);
             }
-            return GetFieldRes.of(doctype, tokens, bboxes, labels);
+            return GetModelRes.of(doctype, tokens, bboxes, labels);
         } catch (Exception e){ throw new GetLabelFailedException();}
 
+    }
+
+    /**
+     * db에 있는 정보를 채워서 반환
+     */
+    public List<GetFieldRes> getField(GetModelRes getModelRes, UserPrincipal userPrincipal){
+        System.out.println("GetModelRes" +getModelRes);
+
+        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+        User user = userRepository.getUserById(userPrincipal.getId());
+
+        List<String> tokens = getModelRes.tokens();
+        List<String> labels = getModelRes.labels();
+
+        List<GetFieldRes> userInputs = new ArrayList<>();
+
+        for (int i = 0; i < tokens.size(); i++) {
+            if ("[BLANK]".equals(tokens.get(i))) {
+                String label = labels.get(i);
+
+                if (label.endsWith("-FIELD")) { // label이 -FIELD 로 끝나면
+                    String baseLabel = label.replace("-FIELD", "");
+
+                    LabelGroup group = LabelGroup.fromLabel(baseLabel);
+                    String displayName = group.getDisplayName();
+
+                    // 사용자 정보에서 가져올 수 있는 값 매핑
+                    String value = switch (group) {
+                        case NAME -> user.getName();
+                        case RRN -> user.getResidentNumber();
+                        case DATE -> user.getResidentDate();
+                        case PHONE -> user.getPhoneNumber();
+                        case ADDR -> user.getAddress();
+                        case EMAIL -> user.getEmail();
+                        default -> null; // 나머지는 사용자로부터 입력 받아야 함
+                    };
+
+                    userInputs.add(new GetFieldRes(
+                            baseLabel,
+                            label,
+                            i,
+                            displayName,
+                            value
+                    ));
+                }
+            }
+        }
+        return userInputs;
     }
 
 
