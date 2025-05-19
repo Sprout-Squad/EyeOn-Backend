@@ -109,6 +109,9 @@ public class FormServiceImpl implements FormService {
             throw new UnsupportedFileTypeException();
         }
 
+        System.out.println("fileName : " + fileName);
+        System.out.println("fileUrl : " + fileUrl);
+
         // 플라스크 서버와 통신하여 파일 유형 받아옴
         FormType formType = getFormType(file, fileName);
 
