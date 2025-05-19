@@ -56,7 +56,23 @@ public class S3Service {
 
 
     /**
-     * base64로 인코딩된 pdf를 업로드
+     * json 업로드
+     */
+    public String uploadJson(String fileName, String jsonContent) {
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .contentType("application/json")
+                .build();
+
+        s3Client.putObject(request, RequestBody.fromString(jsonContent));
+
+        // url 생성해서 리턴
+        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
+
+    /**
+     * base64로 인코딩된 항목을 업로드
      */
     public String uploadPdfBytes(String fileName, byte[] bytes) {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()

@@ -22,7 +22,7 @@ public class PdfService {
     private final S3Service s3Service;
 
     /**
-     * 텍스트를 pdf 파일로 변환하고 업로드
+     * 텍스트를 pdf 파일로 변환하고 업로드하는 로직 (문서 요약에 사용)
      */
     public String textToPdf(String content) {
         try (
@@ -113,5 +113,15 @@ public class PdfService {
         String uuid = UUID.randomUUID().toString();
         return today + "/" + uuid + ".jpg";
     }
-
+    
+    /**
+     * 확장자 명 추출
+     */
+    public String getFileExtension(String filename) {
+        if (filename != null && filename.contains(".")) {
+            return filename.substring(filename.lastIndexOf('.') + 1);
+        } else {
+            return "jpg";
+        }
+    }
 }
