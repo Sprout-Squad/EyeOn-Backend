@@ -18,6 +18,10 @@ public class FlaskService {
     private String baseUrl = "http://3.39.215.178:5050";
 
     /**
+     *
+     */
+
+    /**
      * 문서 필드 분석 (라벨링)
      */
     public String getLabel(String base64Image, String fileExt) throws JsonProcessingException {
