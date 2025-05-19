@@ -12,7 +12,6 @@ import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
-import Sprout_Squad.EyeOn.global.flask.enums.LabelGroup;
 import Sprout_Squad.EyeOn.global.flask.exception.GetLabelFailedException;
 import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
 import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
@@ -30,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static Sprout_Squad.EyeOn.global.flask.enums.LabelGroup.RRN;
 
 @Service
 @RequiredArgsConstructor
