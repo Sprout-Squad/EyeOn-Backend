@@ -13,6 +13,7 @@ import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
 import Sprout_Squad.EyeOn.global.external.exception.GetLabelFailedException;
 import Sprout_Squad.EyeOn.global.external.exception.TypeDetectedFiledException;
+import Sprout_Squad.EyeOn.global.external.exception.UnsupportedFileTypeException;
 import Sprout_Squad.EyeOn.global.external.service.FlaskService;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
@@ -26,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -92,12 +92,25 @@ public class FormServiceImpl implements FormService {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
-        /**
-         * pdf일 경우, pdf to img 로직 필요
-         */
+        String extension = pdfService.getFileExtension(file.getOriginalFilename()).toLowerCase();
 
-        String fileName = s3Service.generateFileName(file);
-        String fileUrl = s3Service.uploadFile(fileName, file);
+        String fileUrl;
+        String fileName;
+
+        if (extension.equals("pdf")) {
+            // PDF -> 이미지 변환
+            byte[] pdfBytes = file.getBytes();
+            fileUrl = pdfService.convertPdfToImage(pdfBytes);
+            fileName = s3Service.extractKeyFromUrl(fileUrl); // 변환된 이미지의 S3 key
+        } else if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png")) {
+            fileName = s3Service.generateFileName(file);
+            fileUrl = s3Service.uploadFile(fileName, file);
+        } else {
+            throw new UnsupportedFileTypeException();
+        }
+
+        System.out.println("fileName : " + fileName);
+        System.out.println("fileUrl : " + fileUrl);
 
         // 플라스크 서버와 통신하여 파일 유형 받아옴
         FormType formType = getFormType(file, fileName);

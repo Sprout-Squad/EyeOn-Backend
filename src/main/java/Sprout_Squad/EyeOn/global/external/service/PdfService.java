@@ -3,12 +3,15 @@ package Sprout_Squad.EyeOn.global.external.service;
 import Sprout_Squad.EyeOn.global.external.exception.FileNotCreatedException;
 import Sprout_Squad.EyeOn.global.external.exception.FontNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -69,6 +72,31 @@ public class PdfService {
     }
 
     /**
+     *  pdf를 이미지로 변환
+     */
+    public String convertPdfToImage(byte[] pdfBytes) throws IOException {
+        try(
+            PDDocument document = PDDocument.load(pdfBytes);
+            ByteArrayOutputStream imageOutputStream = new ByteArrayOutputStream();
+        ){
+            PDFRenderer renderer = new PDFRenderer(document);
+
+            // 첫 페이지를 이미지로 변환
+            BufferedImage bim = renderer.renderImageWithDPI(0, 300);
+
+            ImageIO.write(bim, "jpg", imageOutputStream);
+            byte[] imageBytes = imageOutputStream.toByteArray();
+
+            String fileName = generateImageFileName();
+            String s3Key = "pdf-preview/" + fileName;
+            return s3Service.uploadImageBytes(s3Key, imageBytes);
+        } catch (IOException e) {
+            throw new FileNotCreatedException();
+        }
+
+    }
+
+    /**
      * pdf 파일명 생성
      */
     private String generatePdfFileName() {
@@ -77,6 +105,15 @@ public class PdfService {
         return today + "/" + uuid + ".pdf";
     }
 
+    /**
+     * 이미지 파일명 생성
+     */
+    private String generateImageFileName() {
+        String today = LocalDate.now().toString();
+        String uuid = UUID.randomUUID().toString();
+        return today + "/" + uuid + ".jpg";
+    }
+    
     /**
      * 확장자 명 추출
      */
