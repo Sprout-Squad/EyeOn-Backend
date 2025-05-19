@@ -110,6 +110,8 @@ public class FormServiceImpl implements FormService {
 
         List<String> tokens = getModelRes.tokens();
         List<String> labels = getModelRes.labels();
+        List<List<Double>> bboxes = getModelRes.bboxes();
+
         String docType = getModelRes.doctype();
 
         List<GetFieldRes> userInputs = new ArrayList<>();
@@ -142,10 +144,13 @@ public class FormServiceImpl implements FormService {
                         default -> null; // 나머지는 프론트로부터 값 받기
                     };
 
+                    List<Double> bbox = bboxes.get(i);
+
                     userInputs.add(new GetFieldRes(
                             baseLabel,
                             label,
                             i,
+                            bbox,
                             displayName,
                             value
                     ));

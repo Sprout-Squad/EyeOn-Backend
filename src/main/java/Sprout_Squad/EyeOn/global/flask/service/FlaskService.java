@@ -53,8 +53,6 @@ public class FlaskService {
         try {
             ResponseEntity<Map> responseEntity = restTemplate.postForEntity(endpoint, requestEntity, Map.class);
 
-            System.out.println("Flask 응답 수신: " + responseEntity);
-
             if (responseEntity.getStatusCode() == HttpStatus.OK && Boolean.TRUE.equals(responseEntity.getBody().get("isSuccess"))) {
                 return responseEntity.getBody();
             } else {
