@@ -36,6 +36,7 @@ public class FormController {
         String fileName = file.getOriginalFilename();
 
         GetModelRes getModelRes = formService.getResFromModel(file, fileName);
+        System.out.println("1차 통과 : " + getModelRes);
         List<GetFieldRes> getFieldResList = formService.getField(getModelRes, userPrincipal);
 
         return ResponseEntity.ok(SuccessResponse.from(getFieldResList));

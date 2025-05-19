@@ -15,6 +15,7 @@ import Sprout_Squad.EyeOn.global.converter.ImgConverter;
 import Sprout_Squad.EyeOn.global.flask.enums.LabelGroup;
 import Sprout_Squad.EyeOn.global.flask.exception.GetLabelFailedException;
 import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
+import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
 import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
@@ -26,8 +27,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static Sprout_Squad.EyeOn.global.flask.enums.LabelGroup.RRN;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +41,7 @@ public class FormServiceImpl implements FormService {
     private final S3Service s3Service;
     private final PdfService pdfService;
     private final FlaskService flaskService;
-
+    private final FieldLabelMapper fieldLabelMapper;
     /**
      * 양식 판별
      */
@@ -103,15 +107,23 @@ public class FormServiceImpl implements FormService {
      * db에 있는 정보를 채워서 반환
      */
     public List<GetFieldRes> getField(GetModelRes getModelRes, UserPrincipal userPrincipal){
-        System.out.println("GetModelRes" +getModelRes);
+        System.out.println("GetModelRes: " +getModelRes);
 
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
         List<String> tokens = getModelRes.tokens();
         List<String> labels = getModelRes.labels();
+        String docType = getModelRes.doctype();
 
         List<GetFieldRes> userInputs = new ArrayList<>();
+
+        // context별 전체 label map 불러오기
+        Map<String, Map<String, String>> contextLabelMap = fieldLabelMapper.getContextualLabels();
+
+        // 현재 문서 타입에 해당하는 label 맵
+        Map<String, String> labelMap = contextLabelMap.getOrDefault(docType, Collections.emptyMap());
+        Map<String, String> commonMap = contextLabelMap.getOrDefault("common", Collections.emptyMap());
 
         for (int i = 0; i < tokens.size(); i++) {
             if ("[BLANK]".equals(tokens.get(i))) {
@@ -120,18 +132,18 @@ public class FormServiceImpl implements FormService {
                 if (label.endsWith("-FIELD")) { // label이 -FIELD 로 끝나면
                     String baseLabel = label.replace("-FIELD", "");
 
-                    LabelGroup group = LabelGroup.fromLabel(baseLabel);
-                    String displayName = group.getDisplayName();
+                    // displayName 우선순위: 1) 문서 타입 별 Map → 2) 공통 Map → 3) 기본값
+                    String displayName = labelMap.getOrDefault(baseLabel,
+                            commonMap.getOrDefault(baseLabel, baseLabel));
 
                     // 사용자 정보에서 가져올 수 있는 값 매핑
-                    String value = switch (group) {
-                        case NAME -> user.getName();
-                        case RRN -> user.getResidentNumber();
-                        case DATE -> user.getResidentDate();
-                        case PHONE -> user.getPhoneNumber();
-                        case ADDR -> user.getAddress();
-                        case EMAIL -> user.getEmail();
-                        default -> null; // 나머지는 사용자로부터 입력 받아야 함
+                    String value = switch (baseLabel) {
+                        case "B-PERSONAL-NAME", "B-GRANTOR-NAME", "B-DELEGATE-NAME", "B-NAME", "B-SIGN-NAME" -> user.getName();
+                        case "B-PERSONAL-RRN", "B-GRANTOR-RRN", "B-DELEGATE-RRN" -> user.getResidentNumber();
+                        case "B-PERSONAL-PHONE", "B-GRANTOR-PHONE", "B-DELEGATE-PHONE" -> user.getPhoneNumber();
+                        case "B-PERSONAL-ADDR", "B-GRANTOR-ADDR", "B-DELEGATE-ADDR" -> user.getAddress();
+                        case "B-PERSONAL-EMAIL" -> user.getEmail();
+                        default -> null; // 나머지는 프론트로부터 값 받기
                     };
 
                     userInputs.add(new GetFieldRes(
