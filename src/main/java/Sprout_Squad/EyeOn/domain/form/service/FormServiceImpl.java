@@ -75,11 +75,11 @@ public class FormServiceImpl implements FormService {
 
             // tokens: 문서에서 추출된 텍스트 조각
             List<String> tokens = (List<String>) resultMap.get("tokens");
-            System.out.println("문서 tokens: "+ tokens);
+//            System.out.println("문서 tokens: "+ tokens);
 
             // labels: 각 토큰의 labels
             List<String> labels = (List<String>) resultMap.get("labels");
-            System.out.println("문서 labels: "+labels);
+//            System.out.println("문서 labels: "+labels);
 
             // doctype: 문서 유형
             String doctype = (String) resultMap.get("doctype");
@@ -106,7 +106,7 @@ public class FormServiceImpl implements FormService {
      * db에 있는 정보를 채워서 반환
      */
     public List<GetFieldRes> getField(GetModelRes getModelRes, UserPrincipal userPrincipal){
-        System.out.println("GetModelRes: " +getModelRes);
+//        System.out.println("GetModelRes: " +getModelRes);
 
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
@@ -177,7 +177,7 @@ public class FormServiceImpl implements FormService {
         String fileUrl;
         String fileName;
 
-        System.out.println("파일 확장자 : " + extension);
+//        System.out.println("파일 확장자 : " + extension);
         if (extension.equals("pdf")) {
             // PDF -> 이미지 변환
             byte[] pdfBytes = file.getBytes();
@@ -191,8 +191,8 @@ public class FormServiceImpl implements FormService {
             throw new UnsupportedFileTypeException();
         }
 
-        System.out.println("fileName : " + fileName);
-        System.out.println("fileUrl : " + fileUrl);
+//        System.out.println("fileName : " + fileName);
+//        System.out.println("fileUrl : " + fileUrl);
 
         // 플라스크 서버와 통신하여 파일 유형 받아옴
         FormType formType = getFormType(file, fileName);

@@ -104,20 +104,16 @@ public class DocumentServiceImpl implements DocumentService {
         // 사용자의 양식이 아닐 경우 -> CanNotAccessException
         if(form.getUser() != user) throw new CanNotAccessException();
 
-        System.out.println("통과 1");
         // 이미지 url
         String imgUrl = pdfService.fillImageFromS3(form.getFormUrl(), writeDocsReqList);
 
-        System.out.println("통과 2");
         // pdf url
         byte[] imgToPdf = pdfService.convertImageToPdf(s3Service.downloadFile(imgUrl));
 
-        System.out.println("통과 3");
         // S3에 pdf 업로드
         String fileName = s3Service.generatePdfFileName();
         String pdfUrl = s3Service.uploadPdfBytes(fileName, imgToPdf);
 
-        System.out.println("통과 4");
         DocumentType documentType = DocumentType.valueOf(form.getFormType().name());
 
         Document document = Document.toEntity(documentType, imgUrl, pdfUrl, form, user);

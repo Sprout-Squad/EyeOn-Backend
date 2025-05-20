@@ -51,11 +51,35 @@ public class PdfService {
 
             // 3. 텍스트 삽입
             for (WriteDocsReq field : fields) {
+
                 if (field.value() == null) continue;
+                // bbox : [x0, y0, x1, y1]
                 List<Double> bbox = field.bbox();
-                float x = bbox.get(0).floatValue();
-                float y = bbox.get(1).floatValue();
-                g.drawString(field.value(), x, y);
+                System.out.println("Bounding Box for " + field.displayName() + ": " + bbox);
+
+                float imgWidth = image.getWidth();
+                float imgHeight = image.getHeight();
+
+                // bbox 좌표를 이미지 크기에 맞게 변환
+                float x0 = bbox.get(0).floatValue() * imgWidth / 1000;  // x0
+                float y0 = bbox.get(1).floatValue() * imgHeight / 1000; // y0
+                float x1 = bbox.get(2).floatValue() * imgWidth / 1000;  // x1
+                float y1 = bbox.get(3).floatValue() * imgHeight / 1000; // y1
+
+                // 텍스트를 박스 안에 적절히 배치 (y좌표 보정)
+                float boxHeight = y1 - y0;
+                y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
+
+
+                g.setColor(Color.BLACK);
+                //g.drawRect((int) x0, (int) y0, (int) (x1 - x0), (int) boxHeight); // 디버깅용 사각형 그리기
+
+                // 폰트 크기를 bbox 높이에 맞춰 동적으로 설정 (선택 사항)
+                Font dynamicFont = font.deriveFont( 20f);  // 박스 높이에 맞춰 폰트 크기 조정
+                g.setFont(dynamicFont);
+
+                // 텍스트 삽입
+                g.drawString(field.value(), x0, y0);
             }
 
             g.dispose();
