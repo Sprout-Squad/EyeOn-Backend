@@ -20,6 +20,18 @@ public class OpenAiService {
     private static final String SUMMARY_PROMPT = "당신은 문서를 요약하는 능력이 아주 뛰어난 사람입니다."
             + "사진의 문서를 분석하고, 중요한 내용을 빠짐없이 요약해주세요. 반드시 모든 내용을 요약에 포함시켜주어야 합니다."
             + "텍스트로 제공할 것이기 때문에 강조 표시나 볼드 표시는 필요하지 않습니다.";
+    private static final String MODIFY_PROMPT = "당신은 매우 세심하고 디테일한 사람입니다. 사진의 문서를 분석하여 "
+            + "사용자의 정보와 일치하지 않거나, 법적으로 꼼꼼히 살펴보아야 할 부분을 제시해주세요. 단, 다음과 같은 형태로 제시해주세요.";
+
+    /**
+     * 수정할 부분 분석 요청
+     */
+    public String getModifyAnalyzeFromOpenAi(String imageUrl){
+        // 프롬프트에 사용자 정보를 추가할 것
+        Map<String, Object> requestBody = createRequestBody(imageUrl, MODIFY_PROMPT);
+        ResponseEntity<Map> response = sendRequest(requestBody);
+        return parseResponse(response);
+    }
 
     /**
      * 이미지 요약 요청
@@ -28,7 +40,6 @@ public class OpenAiService {
         Map<String, Object> requestBody = createRequestBody(imageUrl, SUMMARY_PROMPT);
         ResponseEntity<Map> response = sendRequest(requestBody);
         return parseResponse(response);
-
     }
 
     /**
