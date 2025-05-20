@@ -4,7 +4,7 @@ public enum DocumentType {
     RESUME,            // 이력서
     CERTIFICATE,       // 재직증명서
     CONSENT,           // 위임장
-    SELF_INTRO  ,        // 자기소개서
+    SELF_INTRO,        // 자기소개서
     REPORT;            // 일일업무보고서, 일일업무일지
 
     /**

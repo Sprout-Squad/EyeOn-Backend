@@ -1,9 +1,11 @@
 package Sprout_Squad.EyeOn.domain.document.service;
 
 import Sprout_Squad.EyeOn.domain.document.entity.Document;
+import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
 import Sprout_Squad.EyeOn.domain.document.repository.DocumentRepository;
-import Sprout_Squad.EyeOn.domain.document.web.dto.GetDocumentRes;
-import Sprout_Squad.EyeOn.domain.document.web.dto.GetSummaryRes;
+import Sprout_Squad.EyeOn.domain.document.web.dto.*;
+import Sprout_Squad.EyeOn.domain.form.entity.Form;
+import Sprout_Squad.EyeOn.domain.form.repository.FormRepository;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
@@ -13,7 +15,9 @@ import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -24,9 +28,10 @@ public class DocumentServiceImpl implements DocumentService {
     private final S3Service s3Service;
     private final OpenAiService openAiService;
     private final PdfService pdfService;
+    private final FormRepository formRepository;
 
     /**
-     * 사용자의 문서 양식 하나 상세 조회
+     * 사용자의 문서 하나 상세 조회
      */
     @Override
     public GetDocumentRes getOneDocument(UserPrincipal userPrincipal, Long id) {
@@ -82,6 +87,40 @@ public class DocumentServiceImpl implements DocumentService {
 
         // 3. DTO로 반환
         return GetSummaryRes.of(summaryText, summaryFileUrl);
+    }
+
+    /**
+     * 문서 작성
+     */
+    @Override
+    @Transactional
+    public WriteDocsRes writeDocument(UserPrincipal userPrincipal, Long formId, List<WriteDocsReq> writeDocsReqList) throws IOException {
+        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+        User user = userRepository.getUserById(userPrincipal.getId());
+
+        // 양식이 존재하지 않을 경우 -> FormNotFoundException
+        Form form = formRepository.getFormByFormId(formId);
+
+        // 사용자의 양식이 아닐 경우 -> CanNotAccessException
+        if(form.getUser() != user) throw new CanNotAccessException();
+
+        // 이미지 url
+        String imgUrl = pdfService.fillImageFromS3(form.getFormUrl(), writeDocsReqList);
+
+        // pdf url
+        byte[] imgToPdf = pdfService.convertImageToPdf(s3Service.downloadFile(imgUrl));
+
+        // S3에 pdf 업로드
+        String fileName = s3Service.generatePdfFileName();
+        String pdfUrl = s3Service.uploadPdfBytes(fileName, imgToPdf);
+
+        DocumentType documentType = DocumentType.valueOf(form.getFormType().name());
+
+        Document document = Document.toEntity(documentType, imgUrl, pdfUrl, form, user);
+        documentRepository.save(document);
+
+        return WriteDocsRes.from(document);
+
     }
 
 

@@ -1,4 +1,4 @@
-package Sprout_Squad.EyeOn.global.external.service;
+package Sprout_Squad.EyeOn.global.flask.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,17 +18,12 @@ public class FlaskService {
     private String baseUrl = "http://3.39.215.178:5050";
 
     /**
-     *
-     */
-
-    /**
      * 문서 필드 분석 (라벨링)
      */
     public String getLabel(String base64Image, String fileExt) throws JsonProcessingException {
-        System.out.println("플라스크 요청 전에 들어옴");
         Map<String, Object> responseBody = sendFlaskPostRequest("/api/ai/create", base64Image, fileExt);
-        System.out.println("플라스크 응답 받음");
         Map result = (Map) responseBody.get("result");
+        System.out.println("결과 : " + result);
         return objectMapper.writeValueAsString(result);  // result 전체를 JSON 문자열로 변환
     }
 
@@ -57,8 +52,6 @@ public class FlaskService {
 
         try {
             ResponseEntity<Map> responseEntity = restTemplate.postForEntity(endpoint, requestEntity, Map.class);
-
-            System.out.println("Flask 응답 수신: " + responseEntity);
 
             if (responseEntity.getStatusCode() == HttpStatus.OK && Boolean.TRUE.equals(responseEntity.getBody().get("isSuccess"))) {
                 return responseEntity.getBody();

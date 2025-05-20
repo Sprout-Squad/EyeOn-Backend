@@ -2,12 +2,12 @@ package Sprout_Squad.EyeOn.domain.form.web.controller;
 
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.service.FormService;
-import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormFieldRes;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetFieldRes;
+import Sprout_Squad.EyeOn.domain.form.web.dto.GetModelRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
-import Sprout_Squad.EyeOn.global.response.code.GlobalSuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,18 +25,21 @@ public class FormController {
 
     @PostMapping
     public ResponseEntity<SuccessResponse<UploadFormRes>> uploadForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                    @RequestPart("file") MultipartFile file) throws IOException {
+                                                                     @RequestPart("file") MultipartFile file) throws IOException {
         UploadFormRes uploadFormRes = formService.uploadForm(userPrincipal, file);
         return ResponseEntity.ok(SuccessResponse.from(uploadFormRes));
     }
 
     @PostMapping("/analyze/field")
-    public ResponseEntity<SuccessResponse<GetFormFieldRes>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                         @RequestPart("file") MultipartFile file) {
+    public ResponseEntity<SuccessResponse<List<GetFieldRes>>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                           @RequestPart("file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
 
-        GetFormFieldRes getFormFieldRes = formService.getFormField(file, fileName);
-        return ResponseEntity.ok(SuccessResponse.from(getFormFieldRes));
+        GetModelRes getModelRes = formService.getResFromModel(file, fileName);
+        System.out.println("1차 통과 : " + getModelRes);
+        List<GetFieldRes> getFieldResList = formService.getField(getModelRes, userPrincipal);
+
+        return ResponseEntity.ok(SuccessResponse.from(getFieldResList));
     }
 
     @GetMapping("/{formId}/detail")

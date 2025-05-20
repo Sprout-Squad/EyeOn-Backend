@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -30,10 +31,11 @@ public class S3Service {
      * 파일 업로드
      */
     public String uploadFile(String fileName, MultipartFile file) throws IOException {
+        String contentType = "image/jpeg";
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(fileName) // 버킷 내에서 저장할 파일 이름
-                .contentType(file.getContentType())
+                .contentType(contentType)
                 .build();
 
         s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
@@ -55,6 +57,20 @@ public class S3Service {
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
 
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
+
+    /**
+     * url로부터 파일 다운로드
+     */
+    public InputStream downloadFile(String s3Url) {
+        String s3Key = extractKeyFromUrl(s3Url);
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3Key)
+                .build();
+
+        return s3Client.getObject(getObjectRequest);
     }
 
 
@@ -143,8 +159,15 @@ public class S3Service {
         String uuid = UUID.randomUUID().toString();
         String today = LocalDate.now().toString();
 
-        return "form/" + today + "/" + uuid + extension;
+        return "eyeon/" + today + "/" + uuid + extension;
     }
+
+    public String generatePdfFileName() {
+        String uuid = UUID.randomUUID().toString();
+        String today = LocalDate.now().toString();
+        return "eyeon/" + today + "/" + uuid + ".pdf";
+    }
+
 
 
 }
