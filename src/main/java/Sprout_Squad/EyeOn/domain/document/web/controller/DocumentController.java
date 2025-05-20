@@ -3,6 +3,8 @@ package Sprout_Squad.EyeOn.domain.document.web.controller;
 import Sprout_Squad.EyeOn.domain.document.service.DocumentService;
 import Sprout_Squad.EyeOn.domain.document.web.dto.GetDocumentRes;
 import Sprout_Squad.EyeOn.domain.document.web.dto.GetSummaryRes;
+import Sprout_Squad.EyeOn.domain.document.web.dto.WriteDocsRes;
+import Sprout_Squad.EyeOn.domain.document.web.dto.WriteDocsReqWrapper;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -37,5 +40,13 @@ public class DocumentController {
             @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long documentId){
         GetSummaryRes getSummaryRes = documentService.getSummary(userPrincipal, documentId);
         return ResponseEntity.ok(SuccessResponse.from(getSummaryRes));
+    }
+
+    @PostMapping("/{formId}/write")
+    public ResponseEntity<SuccessResponse<WriteDocsRes>> writeDocument(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long formId, @RequestBody WriteDocsReqWrapper writeDocsReqWrapper) throws IOException {
+        WriteDocsRes writeDocsRes = documentService.writeDocument(userPrincipal, formId, writeDocsReqWrapper.data());
+        return ResponseEntity.ok(SuccessResponse.from(writeDocsRes));
     }
 }

@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -174,6 +177,7 @@ public class FormServiceImpl implements FormService {
         String fileUrl;
         String fileName;
 
+        System.out.println("파일 확장자 : " + extension);
         if (extension.equals("pdf")) {
             // PDF -> 이미지 변환
             byte[] pdfBytes = file.getBytes();
@@ -182,6 +186,7 @@ public class FormServiceImpl implements FormService {
         } else if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png")) {
             fileName = s3Service.generateFileName(file);
             fileUrl = s3Service.uploadFile(fileName, file);
+
         } else {
             throw new UnsupportedFileTypeException();
         }
