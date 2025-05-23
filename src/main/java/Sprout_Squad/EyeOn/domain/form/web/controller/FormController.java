@@ -2,7 +2,7 @@ package Sprout_Squad.EyeOn.domain.form.web.controller;
 
 import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.service.FormService;
-import Sprout_Squad.EyeOn.global.flask.dto.GetFieldRes;
+import Sprout_Squad.EyeOn.global.flask.dto.GetFieldForWriteRes;
 import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.GetFormRes;
 import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
@@ -33,14 +33,14 @@ public class FormController {
     }
 
     @PostMapping("/analyze/field")
-    public ResponseEntity<SuccessResponse<List<GetFieldRes>>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                           @RequestPart("file") MultipartFile file) {
+    public ResponseEntity<SuccessResponse<List<GetFieldForWriteRes>>> getFormField(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                                   @RequestPart("file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
 
-        GetModelRes getModelRes = formService.getResFromModel(file, fileName);
-        List<GetFieldRes> getFieldResList = flaskService.getField(getModelRes, userPrincipal);
+        GetModelRes getModelRes = flaskService.getResFromModel(file, fileName);
+        List<GetFieldForWriteRes> getFieldForWriteResList = flaskService.getFieldForWrite(getModelRes, userPrincipal);
 
-        return ResponseEntity.ok(SuccessResponse.from(getFieldResList));
+        return ResponseEntity.ok(SuccessResponse.from(getFieldForWriteResList));
     }
 
     @GetMapping("/{formId}/detail")

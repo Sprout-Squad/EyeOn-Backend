@@ -51,11 +51,9 @@ public class PdfService {
 
             // 3. 텍스트 삽입
             for (WriteDocsReq field : fields) {
-
                 if (field.value() == null) continue;
                 // bbox : [x0, y0, x1, y1]
                 List<Double> bbox = field.bbox();
-                System.out.println("Bounding Box for " + field.displayName() + ": " + bbox);
 
                 float imgWidth = image.getWidth();
                 float imgHeight = image.getHeight();
@@ -156,17 +154,13 @@ public class PdfService {
                 PDDocument document = PDDocument.load(pdfBytes);
                 ByteArrayOutputStream imageOutputStream = new ByteArrayOutputStream();
             ) {
-            System.out.println("잘 들어와요22");
             PDFRenderer renderer = new PDFRenderer(document);
 
-            System.out.println("잘 들어와요333");
             // 첫 페이지를 이미지로 변환
             BufferedImage bim = renderer.renderImageWithDPI(0, 300);
 
-            System.out.println("잘 들어와요4444");
             ImageIO.write(bim, "jpg", imageOutputStream);
             byte[] imageBytes = imageOutputStream.toByteArray();
-            System.out.println("잘 들어와요5");
 
             String fileName = generateImageFileName();
             String s3Key = "pdf-preview/" + fileName;

@@ -19,6 +19,7 @@ import java.util.List;
 public class DocumentController {
     private final DocumentService documentService;
 
+    // 문서 업로드
     @PostMapping
     public ResponseEntity<SuccessResponse<UploadDocumentRes>> uploadDocument(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestPart("file") MultipartFile file) throws IOException {
@@ -26,6 +27,7 @@ public class DocumentController {
         return ResponseEntity.ok(SuccessResponse.from(uploadDocumentRes));
     }
 
+    // 문서 상세 조회
     @GetMapping("/{documentId}/detail")
     public ResponseEntity<SuccessResponse<GetDocumentRes>> getDocumentDetail(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long documentId) {
@@ -33,6 +35,7 @@ public class DocumentController {
         return ResponseEntity.ok(SuccessResponse.from(getDocumentRes));
     }
 
+    // 문서 리스트 조회
     @GetMapping("/list")
     public ResponseEntity<SuccessResponse<List<GetDocumentRes>>> getDocumentList(
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -40,6 +43,7 @@ public class DocumentController {
         return ResponseEntity.ok(SuccessResponse.from(getDocumentResList));
     }
 
+    // 문서 요약
     @GetMapping("/{documentId}/summary")
     public ResponseEntity<SuccessResponse<GetSummaryRes>> getDocumentSummary(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long documentId){
@@ -47,11 +51,20 @@ public class DocumentController {
         return ResponseEntity.ok(SuccessResponse.from(getSummaryRes));
     }
 
+    // 문서 작성
     @PostMapping("/{formId}/write")
     public ResponseEntity<SuccessResponse<WriteDocsRes>> writeDocument(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long formId, @RequestBody WriteDocsReqWrapper writeDocsReqWrapper) throws IOException {
         WriteDocsRes writeDocsRes = documentService.writeDocument(userPrincipal, formId, writeDocsReqWrapper.data());
         return ResponseEntity.ok(SuccessResponse.from(writeDocsRes));
+    }
+
+    // 문서 조언
+    @GetMapping("/{documentId}/advice")
+    public ResponseEntity<SuccessResponse<?>> getDocumentAdvice(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long documentId) throws IOException {
+        List<GetAdviceRes> getAdviceResList=documentService.getAdvice(userPrincipal, documentId);
+        return ResponseEntity.ok(SuccessResponse.from(getAdviceResList));
     }
 }

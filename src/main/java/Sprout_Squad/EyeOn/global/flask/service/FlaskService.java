@@ -1,12 +1,13 @@
 package Sprout_Squad.EyeOn.global.flask.service;
 
-import Sprout_Squad.EyeOn.global.flask.dto.GetFieldRes;
+import Sprout_Squad.EyeOn.global.flask.dto.GetFieldForWriteRes;
 import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
+import Sprout_Squad.EyeOn.global.flask.exception.GetLabelFailedException;
 import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
 import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,6 +29,47 @@ public class FlaskService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String baseUrl = "http://3.39.215.178:5050";
+
+    /**
+     * 모델에서 문서 분석 결과를 받아 가공
+     */
+    public GetModelRes getResFromModel(MultipartFile file, String fileName){
+        try {
+            String fileToBase64 = ImgConverter.toBase64(file);
+            String fileExtension = pdfService.getFileExtension(fileName);
+
+            // 플라스크 요청
+            String jsonRes = getLabel(fileToBase64, fileExtension);
+
+            // jsonRes를 파싱
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> resultMap = mapper.readValue(jsonRes, Map.class);
+
+            // tokens: 문서에서 추출된 텍스트 조각
+            List<String> tokens = (List<String>) resultMap.get("tokens");
+
+            // labels: 각 토큰의 labels
+            List<String> labels = (List<String>) resultMap.get("labels");
+
+            // doctype: 문서 유형
+            String doctype = (String) resultMap.get("doctype");
+
+            // rawBboxes: 각 토큰의 bounding box 좌표 정보
+            List<List<?>> rawBboxes = (List<List<?>>) resultMap.get("bboxes");
+
+            // bboxes: 각 토큰의 bounding box 좌표 정보
+            List<List<Double>> bboxes = new ArrayList<>();
+
+            // List<?> 형태로 파싱된 좌표 데이터를 List<Double>로 변환
+            for (List<?> box : rawBboxes) {
+                List<Double> convertedBox = box.stream()
+                        .map(val -> ((Number) val).doubleValue()) // JSON 파싱 결과가 Number 타입 -> 형변환 필요
+                        .toList();
+                bboxes.add(convertedBox);
+            }
+            return GetModelRes.of(doctype, tokens, bboxes, labels);
+        } catch (Exception e){ throw new GetLabelFailedException();}
+    }
 
     /**
      * 문서 필드 분석(라벨링) 요청
@@ -71,17 +113,16 @@ public class FlaskService {
         };
     }
 
-
     /**
-     * 모델 예측 결과를 보기 좋게 가공
+     * 모델 예측 결과를 문서 작성 형태에 맞는 형식으로 가공
      */
-    private GetFieldRes buildField(int i, GetModelRes getModelRes, User user, Map<String, String> labelMap) {
+    private GetFieldForWriteRes buildFieldForWrite(int i, GetModelRes getModelRes, User user, Map<String, String> labelMap) {
         String label = getModelRes.labels().get(i);
         String baseLabel = label.replace("-FIELD", "");
         String displayName = labelMap.getOrDefault(baseLabel, baseLabel);
         String value = resolveValue(baseLabel, user);
 
-        return new GetFieldRes(
+        return new GetFieldForWriteRes(
                 baseLabel,
                 label,
                 i,
@@ -101,23 +142,30 @@ public class FlaskService {
     }
 
     /**
-     * 모델로부터 얻은 결과를 가공 및 사용자 정보를 채워넣어 구조화된 형태로 반환
+     * 모델로부터 얻은 결과를 가공 및 사용자 정보를 채워넣어 문서 작성 양식에 맞는 형태로 반환
      */
-    public List<GetFieldRes> getField(GetModelRes getModelRes, UserPrincipal userPrincipal){
+    public List<GetFieldForWriteRes> getFieldForWrite(GetModelRes getModelRes, UserPrincipal userPrincipal){
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
         Map<String, String> labelMap = getLabelMap(getModelRes.doctype());
-        List<GetFieldRes> fields = new ArrayList<>();
+        List<GetFieldForWriteRes> fields = new ArrayList<>();
 
         for (int i = 0; i < getModelRes.tokens().size(); i++) {
             if (isBlankField(getModelRes.tokens().get(i), getModelRes.labels().get(i), labelMap)) {
-                fields.add(buildField(i, getModelRes, user, labelMap));
+                fields.add(buildFieldForWrite(i, getModelRes, user, labelMap));
             }
         }
 
         return fields;
     }
+
+    /**
+     * OpenAI가 인식할 수 있는 형태로 가공
+     */
+//    private GetFieldForAdvice getFieldForAdvice(GetFieldForAdvice getFieldForAdvice) {
+//
+//    }
 
 
     /**

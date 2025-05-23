@@ -5,26 +5,27 @@ import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
 import Sprout_Squad.EyeOn.domain.document.repository.DocumentRepository;
 import Sprout_Squad.EyeOn.domain.document.web.dto.*;
 import Sprout_Squad.EyeOn.domain.form.entity.Form;
-import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.repository.FormRepository;
-import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
-import Sprout_Squad.EyeOn.global.converter.ImgConverter;
 import Sprout_Squad.EyeOn.global.external.exception.UnsupportedFileTypeException;
 import Sprout_Squad.EyeOn.global.external.service.OpenAiService;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
-import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
+import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
 import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Service
@@ -168,8 +169,36 @@ public class DocumentServiceImpl implements DocumentService {
      */
 
     /**
-     * 수정이 필요한 필드 분석
+     * 문서 조언
      */
+    @Override
+    public List<GetAdviceRes> getAdvice(UserPrincipal userPrincipal, Long id) throws IOException {
+        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+        User user = userRepository.getUserById(userPrincipal.getId());
+
+        // 문서가 존재하지 않을 경우 ->  DocumentNotFoundException
+        Document document = documentRepository.getDocumentsByDocumentId(id);
+
+        // 사용자의 문서가 아닐 경우 -> CanNotAccessException
+        if(document.getUser() != user) throw new CanNotAccessException();
+        InputStream file = s3Service.downloadFile(document.getDocumentImageUrl());
+
+        MultipartFile multipartFile = new MockMultipartFile(
+                document.getDocumentName(),
+                document.getDocumentName(),
+                "application/octet-stream",
+                file
+        );
+
+        GetModelRes getModelRes = flaskService.getResFromModel(multipartFile, document.getDocumentName());
+
+        String result = openAiService.getModifyAnalyzeFromOpenAi(getModelRes, document.getDocumentType());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        // SON 배열의 각 요소를 GetAdviceRes 객체로 변환하여 리스트로 모음
+        return objectMapper.readValue(result, new TypeReference<List<GetAdviceRes>>() {});
+
+    }
 
 
 }

@@ -14,5 +14,4 @@ public interface FormService {
     GetFormRes getOneForm(UserPrincipal userPrincipal, Long formId);
     List<GetFormRes> getAllFormsByType(UserPrincipal userPrincipal, FormType formType);
     FormType getFormType(MultipartFile file, String fileName);
-    GetModelRes getResFromModel(MultipartFile file, String fileName);
 }

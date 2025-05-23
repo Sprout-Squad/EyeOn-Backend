@@ -13,5 +13,6 @@ public interface DocumentService {
     GetSummaryRes getSummary(UserPrincipal userPrincipal, Long id);
     WriteDocsRes writeDocument(UserPrincipal userPrincipal, Long formId, List<WriteDocsReq> writeDocsReqList) throws IOException;
     UploadDocumentRes uploadDocument(UserPrincipal userPrincipal, MultipartFile file) throws IOException;
+    List<GetAdviceRes> getAdvice(UserPrincipal userPrincipal, Long id) throws IOException;
 
 }
