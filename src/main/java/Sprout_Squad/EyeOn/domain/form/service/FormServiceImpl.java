@@ -9,9 +9,8 @@ import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
+import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
 import Sprout_Squad.EyeOn.global.flask.exception.GetLabelFailedException;
-import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
-import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
 import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
 import Sprout_Squad.EyeOn.global.external.exception.UnsupportedFileTypeException;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
@@ -24,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +34,6 @@ public class FormServiceImpl implements FormService {
     private final S3Service s3Service;
     private final PdfService pdfService;
     private final FlaskService flaskService;
-    private final FieldLabelMapper fieldLabelMapper;
 
     /**
      * 양식 판별
@@ -93,67 +90,6 @@ public class FormServiceImpl implements FormService {
     }
 
     /**
-     * db에 있는 정보를 채워서 반환
-     */
-    public List<GetFieldRes> getField(GetModelRes getModelRes, UserPrincipal userPrincipal){
-//        System.out.println("GetModelRes: " +getModelRes);
-
-        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
-        User user = userRepository.getUserById(userPrincipal.getId());
-
-        List<String> tokens = getModelRes.tokens();
-        List<String> labels = getModelRes.labels();
-        List<List<Double>> bboxes = getModelRes.bboxes();
-
-        String docType = getModelRes.doctype();
-
-        List<GetFieldRes> userInputs = new ArrayList<>();
-
-        // context별 전체 label map 불러오기
-        Map<String, Map<String, String>> contextLabelMap = fieldLabelMapper.getContextualLabels();
-
-        // 현재 문서 타입에 해당하는 label 맵
-        Map<String, String> labelMap = contextLabelMap.getOrDefault(docType, Collections.emptyMap());
-        Map<String, String> commonMap = contextLabelMap.getOrDefault("common", Collections.emptyMap());
-
-        for (int i = 0; i < tokens.size(); i++) {
-            if ("[BLANK]".equals(tokens.get(i))) {
-                String label = labels.get(i);
-
-                if (label.endsWith("-FIELD")) { // label이 -FIELD 로 끝나면
-                    String baseLabel = label.replace("-FIELD", "");
-
-                    // displayName 우선순위: 1) 문서 타입 별 Map → 2) 공통 Map → 3) 기본값
-                    String displayName = labelMap.getOrDefault(baseLabel,
-                            commonMap.getOrDefault(baseLabel, baseLabel));
-
-                    // 사용자 정보에서 가져올 수 있는 값 매핑
-                    String value = switch (baseLabel) {
-                        case "B-PERSONAL-NAME", "B-GRANTOR-NAME", "B-DELEGATE-NAME", "B-NAME", "B-SIGN-NAME" -> user.getName();
-                        case "B-PERSONAL-RRN", "B-GRANTOR-RRN", "B-DELEGATE-RRN" -> user.getResidentNumber();
-                        case "B-PERSONAL-PHONE", "B-GRANTOR-PHONE", "B-DELEGATE-PHONE" -> user.getPhoneNumber();
-                        case "B-PERSONAL-ADDR", "B-GRANTOR-ADDR", "B-DELEGATE-ADDR" -> user.getAddress();
-                        case "B-PERSONAL-EMAIL" -> user.getEmail();
-                        default -> null; // 나머지는 프론트로부터 값 받기
-                    };
-
-                    List<Double> bbox = bboxes.get(i);
-
-                    userInputs.add(new GetFieldRes(
-                            baseLabel,
-                            label,
-                            i,
-                            bbox,
-                            displayName,
-                            value
-                    ));
-                }
-            }
-        }
-        return userInputs;
-    }
-
-    /**
      * 사용자가 양식 업로드 (pdf, png)
      */
     @Override
@@ -167,7 +103,6 @@ public class FormServiceImpl implements FormService {
         String fileUrl;
         String fileName;
 
-//        System.out.println("파일 확장자 : " + extension);
         if (extension.equals("pdf")) {
             // PDF -> 이미지 변환
             byte[] pdfBytes = file.getBytes();
@@ -180,9 +115,6 @@ public class FormServiceImpl implements FormService {
         } else {
             throw new UnsupportedFileTypeException();
         }
-
-//        System.out.println("fileName : " + fileName);
-//        System.out.println("fileUrl : " + fileUrl);
 
         // 플라스크 서버와 통신하여 파일 유형 받아옴
         FormType formType = getFormType(file, fileName);

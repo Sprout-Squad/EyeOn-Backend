@@ -120,15 +120,12 @@ public class FieldLabelMapper {
         );
 
         this.common = Map.ofEntries(
-                Map.entry("년", "B-SIGN-YEAR"),
-                Map.entry("월", "B-SIGN-MONTH"),
-                Map.entry("일", "B-SIGN-DAY"),
-                Map.entry("지원자", "B-SIGN-NAME"),
-                Map.entry("작성일자", "B-DATE-DOCUMENT"),
-                Map.entry("작성일", "B-DATE-DOCUMENT"),
-                Map.entry("위임자", "B-SIGN-NAME"),
-                Map.entry("(인)", "SIGN-SEAL"),
-                Map.entry("(서명)", "SIGN-SEAL")
+                Map.entry("B-SIGN-YEAR", "년"),
+                Map.entry("B-SIGN-MONTH", "월"),
+                Map.entry("B-SIGN-DAY", "일"),
+                Map.entry("B-SIGN-NAME", "지원자"),
+                Map.entry("B-DATE-DOCUMENT", "작성일자"),
+                Map.entry("B-SIGN-SEAL", "(인)")
         );
 
         tempMap.put("resume", this.resume);

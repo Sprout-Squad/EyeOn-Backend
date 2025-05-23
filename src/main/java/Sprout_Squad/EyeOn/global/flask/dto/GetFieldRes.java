@@ -1,4 +1,4 @@
-package Sprout_Squad.EyeOn.domain.form.web.dto;
+package Sprout_Squad.EyeOn.global.flask.dto;
 
 import java.util.List;
 
