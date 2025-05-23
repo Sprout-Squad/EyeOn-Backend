@@ -20,8 +20,8 @@ public class DocumentController {
     private final DocumentService documentService;
 
     @PostMapping
-    public ResponseEntity<SuccessResponse<UploadDocumentRes>> uploadForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                             @RequestPart("file") MultipartFile file) throws IOException {
+    public ResponseEntity<SuccessResponse<UploadDocumentRes>> uploadDocument(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestPart("file") MultipartFile file) throws IOException {
         UploadDocumentRes uploadDocumentRes = documentService.uploadDocument(userPrincipal, file);
         return ResponseEntity.ok(SuccessResponse.from(uploadDocumentRes));
     }

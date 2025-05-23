@@ -23,23 +23,31 @@ public class FlaskService {
     private String baseUrl = "http://3.39.215.178:5050";
 
     /**
-     * 문서 필드 분석 (라벨링)
+     * 문서 필드 분석(라벨링)
      */
     public String getLabel(String base64Image, String fileExt) throws JsonProcessingException {
-        Map<String, Object> responseBody = sendFlaskPostRequest("/api/ai/create", base64Image, fileExt);
+        Map<String, Object> responseBody = sendJsonRequestToFlask("/api/ai/create", base64Image, fileExt);
         Map result = (Map) responseBody.get("result");
-        System.out.println("결과 : " + result);
         return objectMapper.writeValueAsString(result);  // result 전체를 JSON 문자열로 변환
     }
 
     /**
-     * 문서 유형 감지
+     * 수정할 문서 분석
+     */
+    public String getModifyLabel(String base64Image, String fileExt) throws JsonProcessingException {
+        Map<String, Object> responseBody = sendJsonRequestToFlask("/api/ai/create", base64Image, fileExt);
+        Map result = (Map) responseBody.get("modify");
+        return objectMapper.writeValueAsString(result);
+    }
+
+    /**
+     * 문서 유형 감지 바디 구성
      */
     public String detectType(MultipartFile file, String fileName) {
         try {
             String base64Image = ImgConverter.toBase64(file);
             String fileExt = pdfService.getFileExtension(fileName);
-            Map<String, Object> responseBody = sendFlaskPostRequest("/api/ai/detect", base64Image, fileExt);
+            Map<String, Object> responseBody = sendJsonRequestToFlask("/api/ai/detect", base64Image, fileExt);
             return (String) responseBody.get("doc_type");
         } catch (Exception e) {
             throw new TypeDetectedFiledException();
@@ -47,9 +55,9 @@ public class FlaskService {
     }
 
     /**
-     * 공통 요청 처리 메서드
+     * 문서 작성, 필드 분석,  문서 수정 필드 분석 요청 처리 메서드
      */
-    private Map<String, Object> sendFlaskPostRequest(String path, String base64Image, String fileExt) {
+    private Map<String, Object> sendJsonRequestToFlask(String path, String base64Image, String fileExt) {
         String endpoint = baseUrl + path;
 
         Map<String, Object> requestBody = new HashMap<>();
