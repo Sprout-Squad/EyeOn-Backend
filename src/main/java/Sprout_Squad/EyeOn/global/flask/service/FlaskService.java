@@ -1,11 +1,15 @@
 package Sprout_Squad.EyeOn.global.flask.service;
 
+import Sprout_Squad.EyeOn.global.converter.ImgConverter;
+import Sprout_Squad.EyeOn.global.external.service.PdfService;
+import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FlaskService {
     private final RestTemplate restTemplate;
+    private final PdfService pdfService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String baseUrl = "http://3.39.215.178:5050";
 
@@ -30,9 +35,15 @@ public class FlaskService {
     /**
      * 문서 유형 감지
      */
-    public String detectType(String base64Image, String fileExt) {
-        Map<String, Object> responseBody = sendFlaskPostRequest("/api/ai/detect", base64Image, fileExt);
-        return (String) responseBody.get("doc_type");
+    public String detectType(MultipartFile file, String fileName) {
+        try {
+            String base64Image = ImgConverter.toBase64(file);
+            String fileExt = pdfService.getFileExtension(fileName);
+            Map<String, Object> responseBody = sendFlaskPostRequest("/api/ai/detect", base64Image, fileExt);
+            return (String) responseBody.get("doc_type");
+        } catch (Exception e) {
+            throw new TypeDetectedFiledException();
+        }
     }
 
     /**

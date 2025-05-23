@@ -5,17 +5,24 @@ import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
 import Sprout_Squad.EyeOn.domain.document.repository.DocumentRepository;
 import Sprout_Squad.EyeOn.domain.document.web.dto.*;
 import Sprout_Squad.EyeOn.domain.form.entity.Form;
+import Sprout_Squad.EyeOn.domain.form.entity.enums.FormType;
 import Sprout_Squad.EyeOn.domain.form.repository.FormRepository;
+import Sprout_Squad.EyeOn.domain.form.web.dto.UploadFormRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
+import Sprout_Squad.EyeOn.global.converter.ImgConverter;
+import Sprout_Squad.EyeOn.global.external.exception.UnsupportedFileTypeException;
 import Sprout_Squad.EyeOn.global.external.service.OpenAiService;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
+import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
+import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,6 +36,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final OpenAiService openAiService;
     private final PdfService pdfService;
     private final FormRepository formRepository;
+    private final FlaskService flaskService;
 
     /**
      * 사용자의 문서 하나 상세 조회
@@ -125,6 +133,35 @@ public class DocumentServiceImpl implements DocumentService {
     /**
      * 문서 업로드
      */
+    @Override
+    public UploadDocumentRes uploadDocument(UserPrincipal userPrincipal, MultipartFile file) throws IOException {
+        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+        User user = userRepository.getUserById(userPrincipal.getId());
+
+        String extension = pdfService.getFileExtension(file.getOriginalFilename()).toLowerCase();
+
+        String fileUrl;
+        String fileName;
+
+        if (extension.equals("pdf")) {
+            // PDF -> 이미지 변환
+            byte[] pdfBytes = file.getBytes();
+            fileUrl = pdfService.convertPdfToImage(pdfBytes);
+            fileName = s3Service.extractKeyFromUrl(fileUrl); // 변환된 이미지의 S3 key
+        } else if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png")) {
+            fileName = s3Service.generateFileName(file);
+            fileUrl = s3Service.uploadFile(fileName, file);
+        } else {
+            throw new UnsupportedFileTypeException();
+        }
+
+        // 플라스크 서버와 통신하여 파일 유형 받아옴
+        DocumentType documentType = DocumentType.from(flaskService.detectType(file, fileName));
+
+        Document document = Document.toEntity(documentType, fileUrl, fileUrl, null, user);
+        documentRepository.save(document);
+        return UploadDocumentRes.of(document, s3Service.getSize(fileUrl));
+    }
 
     /**
      * 수정이 필요한 필드 분석

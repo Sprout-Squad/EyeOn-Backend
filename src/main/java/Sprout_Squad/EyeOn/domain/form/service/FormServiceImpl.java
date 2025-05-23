@@ -43,15 +43,8 @@ public class FormServiceImpl implements FormService {
      */
     @Override
     public FormType getFormType(MultipartFile file, String fileName) {
-        try {
-            String fileToBase64 = ImgConverter.toBase64(file);
-
-            String fileExtension = pdfService.getFileExtension(fileName);
-            String type = flaskService.detectType(fileToBase64, fileExtension);
-
-            return FormType.from(type);
-
-        } catch (Exception e){ throw new TypeDetectedFiledException(); }
+        String type = flaskService.detectType(file, fileName);
+        return FormType.from(type);
     }
 
     /**

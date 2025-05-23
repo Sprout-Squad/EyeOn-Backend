@@ -1,16 +1,14 @@
 package Sprout_Squad.EyeOn.domain.document.web.controller;
 
 import Sprout_Squad.EyeOn.domain.document.service.DocumentService;
-import Sprout_Squad.EyeOn.domain.document.web.dto.GetDocumentRes;
-import Sprout_Squad.EyeOn.domain.document.web.dto.GetSummaryRes;
-import Sprout_Squad.EyeOn.domain.document.web.dto.WriteDocsRes;
-import Sprout_Squad.EyeOn.domain.document.web.dto.WriteDocsReqWrapper;
+import Sprout_Squad.EyeOn.domain.document.web.dto.*;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,6 +18,13 @@ import java.util.List;
 @RequestMapping("/api/document")
 public class DocumentController {
     private final DocumentService documentService;
+
+    @PostMapping
+    public ResponseEntity<SuccessResponse<UploadDocumentRes>> uploadForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                             @RequestPart("file") MultipartFile file) throws IOException {
+        UploadDocumentRes uploadDocumentRes = documentService.uploadDocument(userPrincipal, file);
+        return ResponseEntity.ok(SuccessResponse.from(uploadDocumentRes));
+    }
 
     @GetMapping("/{documentId}/detail")
     public ResponseEntity<SuccessResponse<GetDocumentRes>> getDocumentDetail(
