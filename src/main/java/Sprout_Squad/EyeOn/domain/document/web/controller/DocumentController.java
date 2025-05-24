@@ -66,6 +66,7 @@ public class DocumentController {
         return ResponseEntity.ok(SuccessResponse.from(writeDocsRes));
     }
 
+    // 문서 수정
     @PutMapping("/{documentId}")
     public ResponseEntity<SuccessResponse<WriteDocsRes>> rewriteDocument(
             @AuthenticationPrincipal UserPrincipal userPrincipal,

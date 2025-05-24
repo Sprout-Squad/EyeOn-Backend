@@ -201,6 +201,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 
         String fileExt = pdfService.getFileExtension(multipartFile.getOriginalFilename());
+
         // 모델로부터 작성된 문서의 OCR 및 라벨링 결과를 가져옴
         String res = flaskService.getModifyLabelReq(ImgConverter.toBase64(multipartFile), fileExt);
 

@@ -189,7 +189,6 @@ public class FlaskService {
             String label = labels.get(i);
             if (!label.endsWith("-FIELD")) continue;
 
-            // FIELD를 기준으로 원래의 field명을 얻어냄
             String field = label.replace("-FIELD", "");
             String displayName = labelMap.getOrDefault(field, field);
 
@@ -264,45 +263,40 @@ public class FlaskService {
         try {
             Map<String, Object> resultMap = objectMapper.readValue(aiResult, Map.class);
 
-            List<String> labels = (List<String>) resultMap.get("labels");
-            List<List<Double>> bboxes = (List<List<Double>>) resultMap.get("bboxes");
-            List<String> tokens = (List<String>) resultMap.get("tokens");
+            Map<String, Object> layoutlmResult = (Map<String, Object>) resultMap.get("layoutlm_result");
+            List<String> labels = (List<String>) layoutlmResult.get("labels");
+            List<List<Double>> bboxes = (List<List<Double>>) layoutlmResult.get("bboxes");
+            String doctype = (String) layoutlmResult.get("doctype");
 
             List<WriteDocsReq> resultList = new ArrayList<>();
 
-            // 1. [BLANK] && -FIELD 필드만 추출
-            List<Integer> targetIndices = new ArrayList<>();
-            for (int i = 0; i < tokens.size(); i++) {
-                if ("[BLANK]".equals(tokens.get(i)) && labels.get(i).endsWith("-FIELD")) {
-                    targetIndices.add(i);
-                }
-            }
-
-            // 2. 수정 요청 인덱스를 targetIndices를 기준으로 처리
+            // 클라이언트가 보내준 index는 layoutlm 기준임
             for (ModifyDocumentReq modify : modifyDocumentReqWrapper.data()) {
-                int logicalIndex = modify.i(); // 클라이언트가 보낸 index
-                String newValue = modify.v();
+                int index = modify.i();
+                String value = modify.v();
 
-                if (logicalIndex < targetIndices.size()) {
-                    int realIndex = targetIndices.get(logicalIndex); // 실제 모델 예측 결과 상 index
-                    String targetField = labels.get(realIndex);
-                    String field = targetField.replace("-FIELD", "");
-                    String displayName = field;
+                if (index >= labels.size() || index >= bboxes.size()) continue;
 
-                    resultList.add(new WriteDocsReq(
-                            field,
-                            targetField,
-                            logicalIndex, // 클라이언트 요청 index 유지
-                            bboxes.get(realIndex),
-                            displayName,
-                            newValue
-                    ));
-                }
+                String targetField = labels.get(index); // B-XXX-FIELD
+                String field = targetField.replace("-FIELD", ""); // B-XXX
+                List<Double> bbox = bboxes.get(index);
+                String displayName = fieldLabelMapper.getDisplayName(doctype, field);
+
+                resultList.add(new WriteDocsReq(
+                        field,
+                        targetField,
+                        index,
+                        bbox,
+                        displayName,
+                        value
+                ));
             }
 
+            System.out.println("결과는? : " + resultList);
             return new WriteDocsReqWrapper(resultList);
+
         } catch (Exception e) {
-            throw new RuntimeException("수정 필드 가공 실패", e);
+            throw new RuntimeException("수정 결과 가공 실패", e);
         }
     }
 
