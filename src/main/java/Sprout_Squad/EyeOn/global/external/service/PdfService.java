@@ -30,7 +30,6 @@ public class PdfService {
      * S3 url을 받아 기존 양식 위에 적힌 부분들을 하얀색으로 덮어 씌우고 재작성하는 로직
      */
     public String rewriteImg(String s3ImageUrl, List<WriteDocsReq> fields) {
-        System.out.println("호출됨 :" + fields);
         try (
                 InputStream imageStream = s3Service.downloadFile(s3ImageUrl);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -52,7 +51,6 @@ public class PdfService {
 
             // 3. 텍스트 삽입
             for (WriteDocsReq field : fields) {
-                System.out.println("[필드 처리 시작] " + field);
 
                 if (field.value() == null) continue;
                 // bbox : [x0, y0, x1, y1]
@@ -68,17 +66,30 @@ public class PdfService {
                 float x1 = bboxRaw.get(2).floatValue() * imgWidth / 1000;
                 float y1 = bboxRaw.get(3).floatValue() * imgHeight / 1000;
 
-                // 텍스트를 박스 안에 적절히 배치 (좌표 보정)
-                float boxHeight = y1 - y0;
-                x0 += 2f;
-                y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
+                // 박스 덮기용
+                double ratioXLeft = 0.97;
+                double ratioXRight = 0.97;
+                double ratioYTop = 0.80;
+                double ratioYBottom = 0.97;
 
-                System.out.printf("[좌표] x0=%.2f, y0=%.2f, x1=%.2f, y1=%.2f%n", x0, y0, x1, y1);
+                double width = x1 - x0;
+                double height = y1 - y0;
 
+                double newX0 = x0 + width * (1 - ratioXLeft);
+                double newX1 = x0 + width * ratioXRight;
+                double newY0 = y0 + height * (1 - ratioYTop);
+                double newY1 = y0 + height * ratioYBottom;
 
                 // 박스를 흰색으로 지우기
                 g.setColor(Color.WHITE);
-                g.fillRect((int) x0, (int) y0, (int) (x1 - x0), (int) (y1 - y0));
+                g.fillRect((int)newX0, (int)newY0, (int)(newX1 - newX0), (int)(newY1 - newY0));
+
+                // 텍스트를 박스 안에 적절히 배치 (좌표 보정)
+                float boxHeight = y1 - y0;
+                x0 += 15f;
+                y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
+
+                System.out.printf("[좌표] x0=%.2f, y0=%.2f, x1=%.2f, y1=%.2f%n", x0, y0, x1, y1);
 
                 g.setColor(Color.BLACK);
                 //g.drawRect((int) x0, (int) y0, (int) (x1 - x0), (int) boxHeight); // 디버깅용 사각형 그리기
@@ -152,7 +163,7 @@ public class PdfService {
 
                 // 텍스트를 박스 안에 적절히 배치 (좌표 보정)
                 float boxHeight = y1 - y0;
-                x0 += 2f;
+                x0 += 15f;
                 y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
 
 
