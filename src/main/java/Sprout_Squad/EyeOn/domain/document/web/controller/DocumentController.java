@@ -74,8 +74,6 @@ public class DocumentController {
         return ResponseEntity.ok(SuccessResponse.from(writeDocsRes));
     }
 
-
-
     // 문서 조언
     @GetMapping("/{documentId}/advice")
     public ResponseEntity<SuccessResponse<?>> getDocumentAdvice(

@@ -15,9 +15,10 @@ import Sprout_Squad.EyeOn.global.external.exception.UnsupportedFileTypeException
 import Sprout_Squad.EyeOn.global.external.service.OpenAiService;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
-import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
+import Sprout_Squad.EyeOn.global.flask.dto.GetFieldForModifyRes;
+import Sprout_Squad.EyeOn.global.flask.dto.GetModelResForModify;
+import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
 import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mock.web.MockMultipartFile;
@@ -39,6 +40,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final PdfService pdfService;
     private final FormRepository formRepository;
     private final FlaskService flaskService;
+    private final FieldLabelMapper fieldLabelMapper;
 
     /**
      * 사용자의 문서 하나 상세 조회
@@ -239,14 +241,25 @@ public class DocumentServiceImpl implements DocumentService {
                 file
         );
 
-        GetModelRes getModelRes = flaskService.getResFromModel(multipartFile, document.getDocumentName());
+        GetModelResForModify getModelResForModify = flaskService.getResFromModelForModify(multipartFile, document.getDocumentName());
 
-        String result = openAiService.getModifyAnalyzeFromOpenAi(getModelRes, document.getDocumentType());
+        // 가공하기 좋은 형태로 변환
+        List<GetFieldForModifyRes> getFieldForModifyResList = flaskService.getFieldForModify(getModelResForModify);
+        System.out.println("반환: " + getFieldForModifyResList);
+//        List<GetAdviceReq> adviceReqList = getFieldForModifyResList.stream()
+//                .map(field -> new GetAdviceReq(field.index(), field.displayName(), field.value()))
+//                .collect(Collectors.toList());
+//
+//        System.out.println("reqList" + adviceReqList);
+//
+//        // OpenAI에 분석 요청
+//        String result = openAiService.getModifyAnalyzeFromOpenAi(adviceReqList, document.getDocumentType());
+
 
         ObjectMapper objectMapper = new ObjectMapper();
         // SON 배열의 각 요소를 GetAdviceRes 객체로 변환하여 리스트로 모음
-        return objectMapper.readValue(result, new TypeReference<List<GetAdviceRes>>() {});
-
+//        return objectMapper.readValue(result, new TypeReference<List<GetAdviceRes>>() {});
+        return null;
     }
 
 

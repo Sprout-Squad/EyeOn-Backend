@@ -1,6 +1,7 @@
 package Sprout_Squad.EyeOn.global.external.service;
 
 import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
+import Sprout_Squad.EyeOn.domain.document.web.dto.GetAdviceReq;
 import Sprout_Squad.EyeOn.global.config.OpenAiConfig;
 import Sprout_Squad.EyeOn.global.external.exception.OpenAiApiException;
 import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
@@ -48,45 +49,21 @@ public class OpenAiService {
     /**
      * 수정할 부분 분석 요청
      */
-    public String getModifyAnalyzeFromOpenAi(GetModelRes getModelRes, DocumentType documentType) {
-        List<Map<String, Object>> structuredFields = new ArrayList<>();
-
-        String docType = getModelRes.doctype();
-        Map<String, String> labelMap = fieldLabelMapper.getCategory(docType);
-        Map<String, String> commonMap = fieldLabelMapper.getCategory("common");
-
-        for (int i = 0; i < getModelRes.tokens().size(); i++) {
-            String token = getModelRes.tokens().get(i);
-            String label = getModelRes.labels().get(i);
-
-            if (label.endsWith("-FIELD")) {
-                int realIndex = getModelRes.indices().get(i);
-
-                // displayName: 우선 docType에서, 없으면 common에서, 그래도 없으면 label 자체 사용
-                String displayName = labelMap.getOrDefault(label, commonMap.getOrDefault(label, label));
-
-                structuredFields.add(Map.of(
-                        "i", realIndex,
-                        "d", displayName,
-                        "v", token
-                ));
-            }
-        }
-
+    public String getModifyAnalyzeFromOpenAi(List<GetAdviceReq> fields, DocumentType documentType) {
         String json;
         try {
-            json = new ObjectMapper().writeValueAsString(structuredFields);
+            json = new ObjectMapper().writeValueAsString(fields);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("JSON 직렬화 실패", e);
         }
 
-        System.out.println("🔍 분석 요청 payload: " + json);
+        System.out.println("📝 분석 요청 payload: " + json);
 
 //        String prompt = "이 문서의 유형은 " + documentType + "입니다.\n" + MODIFY_PROMPT + json;
 //        Map<String, Object> requestBody = createRequestBody(prompt);
 //        ResponseEntity<Map> response = sendRequest(requestBody);
 //        return parseResponse(response);
-        return "하이";
+        return null;
     }
 
 

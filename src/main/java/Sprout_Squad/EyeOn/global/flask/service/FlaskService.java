@@ -4,6 +4,7 @@ import Sprout_Squad.EyeOn.domain.document.web.dto.ModifyDocumentReq;
 import Sprout_Squad.EyeOn.domain.document.web.dto.ModifyDocumentReqWrapper;
 import Sprout_Squad.EyeOn.domain.document.web.dto.WriteDocsReq;
 import Sprout_Squad.EyeOn.domain.document.web.dto.WriteDocsReqWrapper;
+import Sprout_Squad.EyeOn.global.flask.dto.GetFieldForModifyRes;
 import Sprout_Squad.EyeOn.global.flask.dto.GetFieldForWriteRes;
 import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
@@ -11,6 +12,7 @@ import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
 import Sprout_Squad.EyeOn.global.converter.ImgConverter;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
+import Sprout_Squad.EyeOn.global.flask.dto.GetModelResForModify;
 import Sprout_Squad.EyeOn.global.flask.exception.GetLabelFailedException;
 import Sprout_Squad.EyeOn.global.flask.exception.TypeDetectedFiledException;
 import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
@@ -35,15 +37,15 @@ public class FlaskService {
     private String baseUrl = "http://3.39.215.178:5050";
 
     /**
-     * 모델에서 문서 분석 결과를 받아 가공
+     * 모델에서 문서 분석 결과를 받아 가공 (작성)
      */
-    public GetModelRes getResFromModel(MultipartFile file, String fileName){
+    public GetModelRes getResFromModelForWrite(MultipartFile file, String fileName){
         try {
             String fileToBase64 = ImgConverter.toBase64(file);
             String fileExtension = pdfService.getFileExtension(fileName);
 
             // 플라스크 요청
-            String jsonRes = getLabel(fileToBase64, fileExtension);
+            String jsonRes = getLabelForWrite(fileToBase64, fileExtension);
 
             // jsonRes를 파싱
             ObjectMapper mapper = new ObjectMapper();
@@ -76,10 +78,65 @@ public class FlaskService {
     }
 
     /**
-     * 문서 필드 분석(라벨링) 요청
+     * 작성을 위한 문서 필드 분석(라벨링) 요청
      */
-    public String getLabel(String base64Image, String fileExt) throws JsonProcessingException {
+    public String getLabelForWrite(String base64Image, String fileExt) throws JsonProcessingException {
         Map<String, Object> responseBody = sendJsonRequestToFlask("/api/ai/create", base64Image, fileExt);
+        Map result = (Map) responseBody.get("result");
+        return objectMapper.writeValueAsString(result);  // result 전체를 JSON 문자열로 변환
+    }
+
+    /**
+     * 모델에서 문서 분석 결과를 받아 가공 (수정)
+     */
+    public GetModelResForModify getResFromModelForModify(MultipartFile file, String fileName){
+        try {
+            String fileToBase64 = ImgConverter.toBase64(file);
+            String fileExtension = pdfService.getFileExtension(fileName);
+
+            // Flask에 요청
+            String jsonRes = getLabelForModify(fileToBase64, fileExtension);
+
+            // 응답 파싱
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> rootMap = mapper.readValue(jsonRes, Map.class);
+            Map<String, Object> resultMap = (Map<String, Object>) rootMap.get("layoutlm_result");
+            Map<String, Object> mergedMap = (Map<String, Object>) rootMap.get("merged_tokens");
+
+            String doctype = (String) resultMap.get("doctype");
+            List<String> tokens = (List<String>) resultMap.get("tokens");
+            List<String> labels = (List<String>) resultMap.get("labels");
+
+            List<List<Double>> bboxes = new ArrayList<>();
+            List<List<?>> rawBboxes = (List<List<?>>) resultMap.get("bboxes");
+            for (List<?> box : rawBboxes) {
+                List<Double> converted = box.stream()
+                        .map(val -> ((Number) val).doubleValue())
+                        .toList();
+                bboxes.add(converted);
+            }
+
+            List<String> mergedTokens = (List<String>) mergedMap.get("tokens");
+
+            // 인덱스 생성
+            List<Integer> indices = new ArrayList<>();
+            for (int i = 0; i < bboxes.size(); i++) {
+                indices.add(i);
+            }
+
+            return new GetModelResForModify(doctype, tokens, bboxes, labels, indices, mergedTokens);
+
+        } catch (Exception e) {
+            throw new GetLabelFailedException();
+        }
+    }
+
+
+    /**
+     * 수정을 위한 문서 필드 분석(라벨링) 요청
+     */
+    public String getLabelForModify(String base64Image, String fileExt) throws JsonProcessingException {
+        Map<String, Object> responseBody = sendJsonRequestToFlask("/api/ai/modify", base64Image, fileExt);
         Map result = (Map) responseBody.get("result");
         return objectMapper.writeValueAsString(result);  // result 전체를 JSON 문자열로 변환
     }
@@ -118,66 +175,73 @@ public class FlaskService {
     }
 
     /**
-     * 모델 예측 결과를 문서 작성 형태에 맞는 형식으로 가공
+     * 모델로부터 얻은 결과를 가공 및 사용자 정보를 채워넣어 문서 수정 양식에 맞는 형태로 반환
      */
-    private GetFieldForWriteRes buildFieldForWrite(int i, GetModelRes getModelRes, User user, Map<String, String> labelMap) {
-        String label = getModelRes.labels().get(i);
-        String baseLabel = label.replace("-FIELD", "");
-        String displayName = labelMap.getOrDefault(baseLabel, baseLabel);
-        String value = resolveValue(baseLabel, user);
+    public List<GetFieldForModifyRes> getFieldForModify(GetModelResForModify getModelResForModify) {
+        System.out.println("getModelRes = " + getModelResForModify);
+        List<String> labels = getModelResForModify.labels();
+        List<String> tokens = getModelResForModify.tokens(); // merged_tokens 기준
+        List<List<Double>> bboxes = getModelResForModify.bboxes();
+        Map<String, String> labelMap = getLabelMap(getModelResForModify.doctype());
 
-        return new GetFieldForWriteRes(
-                baseLabel,
-                label,
-                i,
-                getModelRes.bboxes().get(i),
-                displayName,
-                value
-        );
+        List<GetFieldForModifyRes> results = new ArrayList<>();
+
+        for (int i = 0; i < labels.size(); i++) {
+            String label = labels.get(i);
+            if (!label.endsWith("-FIELD")) continue;
+
+            String field = label.replace("-FIELD", "");
+            String displayName = labelMap.getOrDefault(field, field);
+
+            if (i >= tokens.size()) continue;
+            String value = tokens.get(i);
+            if (value == null || value.trim().equals("[BLANK]")) continue;
+
+            List<Double> bbox = bboxes.get(i);
+            results.add(new GetFieldForModifyRes(field, label, i, bbox, displayName, value));
+        }
+        System.out.println("results: " + results);
+        return results;
     }
 
-    /**
-     * 1. [BLANK] 이고 -FIELD로 끝나는 경우
-     * 2. labelMap에 정의되어 있으면 결과로 포함
-     */
-    private boolean isBlankField(String token, String label, Map<String, String> labelMap) {
-        return ("[BLANK]".equals(token) && label.endsWith("-FIELD"))
-                || labelMap.containsKey(label);
-    }
+
 
     /**
      * 모델로부터 얻은 결과를 가공 및 사용자 정보를 채워넣어 문서 작성 양식에 맞는 형태로 반환
      */
-    public List<GetFieldForWriteRes> getFieldForWrite(GetModelRes getModelRes, UserPrincipal userPrincipal){
-        System.out.println("getModelRes"+getModelRes);
-        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+    public List<GetFieldForWriteRes> getFieldForWrite(GetModelRes getModelRes, UserPrincipal userPrincipal) {
         User user = userRepository.getUserById(userPrincipal.getId());
-
         Map<String, String> labelMap = getLabelMap(getModelRes.doctype());
         List<GetFieldForWriteRes> fields = new ArrayList<>();
 
-        int fieldIndex = 0;
+        List<String> labels = getModelRes.labels();
+        List<String> tokens = getModelRes.tokens();
+        List<Integer> indices = getModelRes.indices();
+        List<List<Double>> bboxes = getModelRes.bboxes();
 
-        for (int i = 0; i < getModelRes.tokens().size(); i++) {
-            String token = getModelRes.tokens().get(i);
-            String label = getModelRes.labels().get(i);
+        for (int i = 0; i < labels.size(); i++) {
+            String label = labels.get(i);
 
-            if ("[BLANK]".equals(token) && label.endsWith("-FIELD")) {
-                String baseLabel = label.replace("-FIELD", "");
-                String displayName = labelMap.getOrDefault(baseLabel, baseLabel);
-                String value = resolveValue(baseLabel, user);
+            if (label.endsWith("-FIELD")) {
+                String field = label.replace("-FIELD", "");
+                String targetField = label;
+                String displayName = labelMap.getOrDefault(field, field);
+                String value = resolveValue(field, user);
+
+                int actualIndex = indices.get(i);
+                List<Double> bbox = bboxes.get(i);
 
                 fields.add(new GetFieldForWriteRes(
-                        baseLabel,
-                        label,
-                        getModelRes.indices().get(i),
-                        getModelRes.bboxes().get(i),
+                        field,
+                        targetField,
+                        actualIndex,
+                        bbox,
                         displayName,
                         value
                 ));
             }
         }
-        System.out.println("인덱스 " + fields);
+
         return fields;
     }
 
@@ -186,8 +250,9 @@ public class FlaskService {
      * 수정할 문서 분석 요청
      */
     public String getModifyLabelReq(String base64Image, String fileExt) throws JsonProcessingException {
-        Map<String, Object> responseBody = sendJsonRequestToFlask("/api/ai/create", base64Image, fileExt);
+        Map<String, Object> responseBody = sendJsonRequestToFlask("/api/ai/modify", base64Image, fileExt);
         Map result = (Map) responseBody.get("result");
+        System.out.println(result);
         return objectMapper.writeValueAsString(result);
     }
 

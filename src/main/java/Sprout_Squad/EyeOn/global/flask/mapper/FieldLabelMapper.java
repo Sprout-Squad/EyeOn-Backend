@@ -11,7 +11,7 @@ public class FieldLabelMapper {
 
     private final Map<String, Map<String, String>> labelMap;
 
-    // 🟨 클래스 필드 선언 추가
+    // 클래스 필드 선언 추가
     private final Map<String, String> resume;
     private final Map<String, String> certificate;
     private final Map<String, String> consent;

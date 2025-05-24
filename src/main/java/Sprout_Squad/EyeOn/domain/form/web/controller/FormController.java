@@ -37,7 +37,7 @@ public class FormController {
                                                                                    @RequestPart("file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
 
-        GetModelRes getModelRes = flaskService.getResFromModel(file, fileName);
+        GetModelRes getModelRes = flaskService.getResFromModelForWrite(file, fileName);
         List<GetFieldForWriteRes> getFieldForWriteResList = flaskService.getFieldForWrite(getModelRes, userPrincipal);
 
         return ResponseEntity.ok(SuccessResponse.from(getFieldForWriteResList));
