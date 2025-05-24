@@ -178,9 +178,8 @@ public class FlaskService {
      * 모델로부터 얻은 결과를 가공 및 사용자 정보를 채워넣어 문서 수정 양식에 맞는 형태로 반환
      */
     public List<GetFieldForModifyRes> getFieldForModify(GetModelResForModify getModelResForModify) {
-        System.out.println("getModelRes = " + getModelResForModify);
         List<String> labels = getModelResForModify.labels();
-        List<String> tokens = getModelResForModify.tokens(); // merged_tokens 기준
+        List<String> mergedTokens = getModelResForModify.mergedTokens();
         List<List<Double>> bboxes = getModelResForModify.bboxes();
         Map<String, String> labelMap = getLabelMap(getModelResForModify.doctype());
 
@@ -190,17 +189,19 @@ public class FlaskService {
             String label = labels.get(i);
             if (!label.endsWith("-FIELD")) continue;
 
+            // FIELD를 기준으로 원래의 field명을 얻어냄
             String field = label.replace("-FIELD", "");
             String displayName = labelMap.getOrDefault(field, field);
 
-            if (i >= tokens.size()) continue;
-            String value = tokens.get(i);
+            if (i >= mergedTokens.size()) continue;
+
+            String value = mergedTokens.get(i);
             if (value == null || value.trim().equals("[BLANK]")) continue;
 
             List<Double> bbox = bboxes.get(i);
             results.add(new GetFieldForModifyRes(field, label, i, bbox, displayName, value));
         }
-        System.out.println("results: " + results);
+
         return results;
     }
 

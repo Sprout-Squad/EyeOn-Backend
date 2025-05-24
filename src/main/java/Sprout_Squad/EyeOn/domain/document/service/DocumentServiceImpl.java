@@ -19,6 +19,7 @@ import Sprout_Squad.EyeOn.global.flask.dto.GetFieldForModifyRes;
 import Sprout_Squad.EyeOn.global.flask.dto.GetModelResForModify;
 import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
 import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mock.web.MockMultipartFile;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -246,20 +248,22 @@ public class DocumentServiceImpl implements DocumentService {
         // 가공하기 좋은 형태로 변환
         List<GetFieldForModifyRes> getFieldForModifyResList = flaskService.getFieldForModify(getModelResForModify);
         System.out.println("반환: " + getFieldForModifyResList);
-//        List<GetAdviceReq> adviceReqList = getFieldForModifyResList.stream()
-//                .map(field -> new GetAdviceReq(field.index(), field.displayName(), field.value()))
-//                .collect(Collectors.toList());
-//
-//        System.out.println("reqList" + adviceReqList);
-//
-//        // OpenAI에 분석 요청
-//        String result = openAiService.getModifyAnalyzeFromOpenAi(adviceReqList, document.getDocumentType());
 
+        // GetFieldForModifyRes → GetAdviceReq로 변환
+        List<GetAdviceReq> adviceReqList = getFieldForModifyResList.stream()
+                .map(field -> new GetAdviceReq(
+                        field.index(),         // i: index
+                        field.displayName(),   // d: displayName
+                        field.value()          // v: value
+                ))
+                .collect(Collectors.toList());
+
+        System.out.println("reqList" + adviceReqList);
+        String result = openAiService.getModifyAnalyzeFromOpenAi(adviceReqList, document.getDocumentType());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        // SON 배열의 각 요소를 GetAdviceRes 객체로 변환하여 리스트로 모음
-//        return objectMapper.readValue(result, new TypeReference<List<GetAdviceRes>>() {});
-        return null;
+        // JSON 배열의 각 요소를 GetAdviceRes 객체로 변환하여 리스트로 모음
+        return objectMapper.readValue(result, new TypeReference<List<GetAdviceRes>>() {});
     }
 
 
