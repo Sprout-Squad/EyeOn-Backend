@@ -149,6 +149,7 @@ public class FlaskService {
      * 모델로부터 얻은 결과를 가공 및 사용자 정보를 채워넣어 문서 작성 양식에 맞는 형태로 반환
      */
     public List<GetFieldForWriteRes> getFieldForWrite(GetModelRes getModelRes, UserPrincipal userPrincipal){
+        System.out.println("getModelRes"+getModelRes);
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
@@ -169,7 +170,7 @@ public class FlaskService {
                 fields.add(new GetFieldForWriteRes(
                         baseLabel,
                         label,
-                        fieldIndex++,
+                        getModelRes.indices().get(i),
                         getModelRes.bboxes().get(i),
                         displayName,
                         value
