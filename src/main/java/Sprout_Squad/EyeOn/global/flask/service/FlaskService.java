@@ -1,5 +1,9 @@
 package Sprout_Squad.EyeOn.global.flask.service;
 
+import Sprout_Squad.EyeOn.domain.document.web.dto.ModifyDocumentReq;
+import Sprout_Squad.EyeOn.domain.document.web.dto.ModifyDocumentReqWrapper;
+import Sprout_Squad.EyeOn.domain.document.web.dto.WriteDocsReq;
+import Sprout_Squad.EyeOn.domain.document.web.dto.WriteDocsReqWrapper;
 import Sprout_Squad.EyeOn.global.flask.dto.GetFieldForWriteRes;
 import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
 import Sprout_Squad.EyeOn.domain.user.entity.User;
@@ -151,30 +155,88 @@ public class FlaskService {
         Map<String, String> labelMap = getLabelMap(getModelRes.doctype());
         List<GetFieldForWriteRes> fields = new ArrayList<>();
 
+        int fieldIndex = 0;
+
         for (int i = 0; i < getModelRes.tokens().size(); i++) {
-            if (isBlankField(getModelRes.tokens().get(i), getModelRes.labels().get(i), labelMap)) {
-                fields.add(buildFieldForWrite(i, getModelRes, user, labelMap));
+            String token = getModelRes.tokens().get(i);
+            String label = getModelRes.labels().get(i);
+
+            if ("[BLANK]".equals(token) && label.endsWith("-FIELD")) {
+                String baseLabel = label.replace("-FIELD", "");
+                String displayName = labelMap.getOrDefault(baseLabel, baseLabel);
+                String value = resolveValue(baseLabel, user);
+
+                fields.add(new GetFieldForWriteRes(
+                        baseLabel,
+                        label,
+                        fieldIndex++,
+                        getModelRes.bboxes().get(i),
+                        displayName,
+                        value
+                ));
             }
         }
-
+        System.out.println("인덱스 " + fields);
         return fields;
     }
 
-    /**
-     * OpenAI가 인식할 수 있는 형태로 가공
-     */
-//    private GetFieldForAdvice getFieldForAdvice(GetFieldForAdvice getFieldForAdvice) {
-//
-//    }
-
 
     /**
-     * 수정할 문서 분석
+     * 수정할 문서 분석 요청
      */
-    public String getModifyLabel(String base64Image, String fileExt) throws JsonProcessingException {
+    public String getModifyLabelReq(String base64Image, String fileExt) throws JsonProcessingException {
         Map<String, Object> responseBody = sendJsonRequestToFlask("/api/ai/create", base64Image, fileExt);
-        Map result = (Map) responseBody.get("modify");
+        Map result = (Map) responseBody.get("result");
         return objectMapper.writeValueAsString(result);
+    }
+
+    /**
+     * 수정 문석 분석 결과를 바탕으로 modifyDocumentReq와 비교하여 WriteDocsReqWrapper 를 반환
+     */
+    public WriteDocsReqWrapper getModifyRes(String aiResult, ModifyDocumentReqWrapper modifyDocumentReqWrapper) {
+        try {
+            Map<String, Object> resultMap = objectMapper.readValue(aiResult, Map.class);
+
+            List<String> labels = (List<String>) resultMap.get("labels");
+            List<List<Double>> bboxes = (List<List<Double>>) resultMap.get("bboxes");
+            List<String> tokens = (List<String>) resultMap.get("tokens");
+
+            List<WriteDocsReq> resultList = new ArrayList<>();
+
+            // 1. [BLANK] && -FIELD 필드만 추출
+            List<Integer> targetIndices = new ArrayList<>();
+            for (int i = 0; i < tokens.size(); i++) {
+                if ("[BLANK]".equals(tokens.get(i)) && labels.get(i).endsWith("-FIELD")) {
+                    targetIndices.add(i);
+                }
+            }
+
+            // 2. 수정 요청 인덱스를 targetIndices를 기준으로 처리
+            for (ModifyDocumentReq modify : modifyDocumentReqWrapper.data()) {
+                int logicalIndex = modify.i(); // 클라이언트가 보낸 index
+                String newValue = modify.v();
+
+                if (logicalIndex < targetIndices.size()) {
+                    int realIndex = targetIndices.get(logicalIndex); // 실제 모델 예측 결과 상 index
+                    String targetField = labels.get(realIndex);
+                    String field = targetField.replace("-FIELD", "");
+                    String displayName = field;
+
+                    resultList.add(new WriteDocsReq(
+                            field,
+                            targetField,
+                            logicalIndex, // 클라이언트 요청 index 유지
+                            bboxes.get(realIndex),
+                            displayName,
+                            newValue
+                    ));
+                }
+            }
+
+            return new WriteDocsReqWrapper(resultList);
+        } catch (Exception e) {
+            throw new RuntimeException("수정 필드 가공 실패", e);
+        }
     }
 
     /**

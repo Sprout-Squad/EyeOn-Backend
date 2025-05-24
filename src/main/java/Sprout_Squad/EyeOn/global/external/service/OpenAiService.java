@@ -4,11 +4,14 @@ import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
 import Sprout_Squad.EyeOn.global.config.OpenAiConfig;
 import Sprout_Squad.EyeOn.global.external.exception.OpenAiApiException;
 import Sprout_Squad.EyeOn.global.flask.dto.GetModelRes;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,12 +46,39 @@ public class OpenAiService {
      * 수정할 부분 분석 요청
      */
     public String getModifyAnalyzeFromOpenAi(GetModelRes getModelRes, DocumentType documentType){
-        String prompt = "이 문서의 유형은" + documentType+"입니다."+ MODIFY_PROMPT+ getModelRes;
+        List<Map<String, Object>> structuredFields = new ArrayList<>();
 
+        int logicalIndex = 0;
+
+        for (int i = 0; i < getModelRes.tokens().size(); i++) {
+            String token = getModelRes.tokens().get(i);
+            String label = getModelRes.labels().get(i);
+
+            if ("[BLANK]".equals(token) && label.endsWith("-FIELD")) {
+                String baseLabel = label.replace("B-", "").replace("-FIELD", "").replace("-", " ");
+                String value = token; // "[BLANK]" 이지만 그대로 넘기고 싶을 경우
+
+                structuredFields.add(Map.of(
+                        "i", logicalIndex++,
+                        "d", baseLabel,
+                        "v", value
+                ));
+            }
+        }
+
+        String json;
+        try {
+            json = new ObjectMapper().writeValueAsString(structuredFields);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON 직렬화 실패", e);
+        }
+
+        String prompt = "이 문서의 유형은 " + documentType + "입니다.\n" + MODIFY_PROMPT + json;
         Map<String, Object> requestBody = createRequestBody(prompt);
         ResponseEntity<Map> response = sendRequest(requestBody);
         return parseResponse(response);
     }
+
 
     /**
      * 이미지 요약 요청

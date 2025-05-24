@@ -47,11 +47,16 @@ public class Document extends BaseEntity {
     @Column(name = "document_url", nullable = false)
     private String documentUrl;
 
-    public static Document toEntity(DocumentType documentType, String imageUrl, String documentUrl, Form form, User user){
+    public void modifyDocument(String documentImageUrl, String documentUrl) {
+        this.documentImageUrl = documentImageUrl;
+        this.documentUrl = documentUrl;
+    }
+
+    public static Document toEntity(DocumentType documentType, String imageUrl, String documentUrl, Form form, String fileName, User user){
         return Document.builder()
                 .user(user)
                 .form(form)
-                .documentName(form.getName()) // 양식 이름과 동일하게 사용
+                .documentName(fileName) // 양식 이름과 동일하게 사용
                 .documentImageUrl(imageUrl) // 작성된 문서 이미지 형태
                 .documentUrl(documentUrl) // pdf 형태
                 .documentType(documentType)

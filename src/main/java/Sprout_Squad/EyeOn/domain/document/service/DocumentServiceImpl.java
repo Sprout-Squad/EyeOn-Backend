@@ -10,6 +10,7 @@ import Sprout_Squad.EyeOn.domain.user.entity.User;
 import Sprout_Squad.EyeOn.domain.user.repository.UserRepository;
 import Sprout_Squad.EyeOn.global.auth.exception.CanNotAccessException;
 import Sprout_Squad.EyeOn.global.auth.jwt.UserPrincipal;
+import Sprout_Squad.EyeOn.global.converter.ImgConverter;
 import Sprout_Squad.EyeOn.global.external.exception.UnsupportedFileTypeException;
 import Sprout_Squad.EyeOn.global.external.service.OpenAiService;
 import Sprout_Squad.EyeOn.global.external.service.PdfService;
@@ -121,11 +122,13 @@ public class DocumentServiceImpl implements DocumentService {
 
         // S3에 pdf 업로드
         String fileName = s3Service.generatePdfFileName();
+        int dotIndex = fileName.lastIndexOf('.');
+        String nameOnly = (dotIndex != -1) ? fileName.substring(0, dotIndex) : fileName;
         String pdfUrl = s3Service.uploadPdfBytes(fileName, imgToPdf);
 
         DocumentType documentType = DocumentType.valueOf(form.getFormType().name());
 
-        Document document = Document.toEntity(documentType, imgUrl, pdfUrl, form, user);
+        Document document = Document.toEntity(documentType, imgUrl, pdfUrl, form, nameOnly, user);
         documentRepository.save(document);
 
         return WriteDocsRes.from(document);
@@ -135,6 +138,7 @@ public class DocumentServiceImpl implements DocumentService {
      * 문서 업로드
      */
     @Override
+    @Transactional
     public UploadDocumentRes uploadDocument(UserPrincipal userPrincipal, MultipartFile file) throws IOException {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
@@ -159,7 +163,7 @@ public class DocumentServiceImpl implements DocumentService {
         // 플라스크 서버와 통신하여 파일 유형 받아옴
         DocumentType documentType = DocumentType.from(flaskService.detectType(file, fileName));
 
-        Document document = Document.toEntity(documentType, fileUrl, fileUrl, null, user);
+        Document document = Document.toEntity(documentType, fileUrl, fileUrl, null, fileName, user);
         documentRepository.save(document);
         return UploadDocumentRes.of(document, s3Service.getSize(fileUrl));
     }
@@ -167,6 +171,51 @@ public class DocumentServiceImpl implements DocumentService {
     /**
      * 문서 수정
      */
+    @Override
+    @Transactional
+    public WriteDocsRes rewriteDocument(UserPrincipal userPrincipal, Long documentId,
+                                        ModifyDocumentReqWrapper modifyDocumentReqWrapper) throws IOException {
+        // 사용자가 존재하지 않을 경우 -> UserNotFoundException
+        User user = userRepository.getUserById(userPrincipal.getId());
+
+        // 문서가 존재하지 않을 경우 -> DocumentNotFoundException
+        Document document = documentRepository.getDocumentsByDocumentId(documentId);
+
+        // 사용자의 문서가 아닐 경우 -> CanNotAccessException
+        if(document.getUser() != user) throw new CanNotAccessException();
+
+        // 실제 문서를 가져옴
+        InputStream file = s3Service.downloadFile(document.getDocumentImageUrl());
+
+        // InputStream을 MultipartFile로 변환
+        MultipartFile multipartFile = new MockMultipartFile(
+                document.getDocumentName(),
+                document.getDocumentName(),
+                "application/octet-stream",
+                file
+        );
+
+
+        String fileExt = pdfService.getFileExtension(multipartFile.getOriginalFilename());
+        // 모델로부터 작성된 문서의 OCR 및 라벨링 결과를 가져옴
+        String res = flaskService.getModifyLabelReq(ImgConverter.toBase64(multipartFile), fileExt);
+
+        // 수정 요청과 비교하여 WritDocsReqList 구성
+        WriteDocsReqWrapper writeDocsReqList = flaskService.getModifyRes(res, modifyDocumentReqWrapper);
+
+        // 이미지 url (이미지 덮어쓰기 및 재작성)
+        String imgUrl = pdfService.rewriteImg(document.getDocumentImageUrl(), writeDocsReqList.data());
+
+        // pdf
+        byte[] imgToPdf = pdfService.convertImageToPdf(s3Service.downloadFile(imgUrl));
+
+        // S3에 pdf 업로드
+        String fileName = s3Service.generatePdfFileName();
+        String pdfUrl = s3Service.uploadPdfBytes(fileName, imgToPdf);
+
+        document.modifyDocument(imgUrl, pdfUrl);
+        return WriteDocsRes.from(document);
+    }
 
     /**
      * 문서 조언
