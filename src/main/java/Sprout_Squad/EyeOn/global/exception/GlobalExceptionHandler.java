@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
 @Slf4j
@@ -80,6 +81,17 @@ public class GlobalExceptionHandler {
                 e.getErrorCode(),
                 e.getErrorCode().getMessage(),
                 e.getExtra()
+        );
+        return ResponseEntity.status(error.getHttpStatus()).body(error);
+    }
+
+    /* RequestPart 누락 시 에러 처리 */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    private ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
+        log.error("MissingServletRequestPartException Error: {}", e.getRequestPartName());
+        ErrorResponse error = ErrorResponse.of(
+                GlobalErrorCode.BAD_REQUEST_ERROR,
+                e.getRequestPartName() + " 파트가 요청에 없습니다."
         );
         return ResponseEntity.status(error.getHttpStatus()).body(error);
     }

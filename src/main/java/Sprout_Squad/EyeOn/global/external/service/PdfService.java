@@ -27,9 +27,9 @@ public class PdfService {
     private final S3Service s3Service;
 
     /**
-     * S3 url을 받아 양식 위에 문서 작성 로직
+     * S3 url을 받아 기존 양식 위에 적힌 부분들을 하얀색으로 덮어 씌우고 재작성하는 로직
      */
-    public String fillImageFromS3(String s3ImageUrl, List<WriteDocsReq> fields) {
+    public String rewriteImg(String s3ImageUrl, List<WriteDocsReq> fields) {
         try (
                 InputStream imageStream = s3Service.downloadFile(s3ImageUrl);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -55,7 +55,102 @@ public class PdfService {
                 if (field.value() == null) continue;
                 // bbox : [x0, y0, x1, y1]
                 List<Double> bbox = field.bbox();
-                System.out.println("Bounding Box for " + field.displayName() + ": " + bbox);
+
+                float imgWidth = image.getWidth();
+                float imgHeight = image.getHeight();
+
+                // bbox 좌표를 이미지 크기에 맞게 변환
+                List<? extends Number> bboxRaw = field.bbox();
+                float x0 = bboxRaw.get(0).floatValue() * imgWidth / 1000;
+                float y0 = bboxRaw.get(1).floatValue() * imgHeight / 1000;
+                float x1 = bboxRaw.get(2).floatValue() * imgWidth / 1000;
+                float y1 = bboxRaw.get(3).floatValue() * imgHeight / 1000;
+
+                // 박스 덮기용
+                double ratioXLeft = 0.97;
+                double ratioXRight = 0.97;
+                double ratioYTop = 0.80;
+                double ratioYBottom = 0.97;
+
+                double width = x1 - x0;
+                double height = y1 - y0;
+
+                double newX0 = x0 + width * (1 - ratioXLeft);
+                double newX1 = x0 + width * ratioXRight;
+                double newY0 = y0 + height * (1 - ratioYTop);
+                double newY1 = y0 + height * ratioYBottom;
+
+                // 박스를 흰색으로 지우기
+                g.setColor(Color.WHITE);
+                g.fillRect((int)newX0, (int)newY0, (int)(newX1 - newX0), (int)(newY1 - newY0));
+
+                // 텍스트를 박스 안에 적절히 배치 (좌표 보정)
+                float boxHeight = y1 - y0;
+                x0 += 15f;
+                y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
+
+                System.out.printf("[좌표] x0=%.2f, y0=%.2f, x1=%.2f, y1=%.2f%n", x0, y0, x1, y1);
+
+                g.setColor(Color.BLACK);
+                //g.drawRect((int) x0, (int) y0, (int) (x1 - x0), (int) boxHeight); // 디버깅용 사각형 그리기
+                // 폰트 크기를 bbox 높이에 맞춰 동적으로 설정
+                Font dynamicFont = font.deriveFont( 20f);  // 박스 높이에 맞춰 폰트 크기 조정
+                g.setFont(dynamicFont);
+
+                System.out.println("[텍스트 출력] value=\"" + field.value() + "\" at (" + x0 + ", " + y0 + ")");
+
+                // 텍스트 삽입
+                g.drawString(field.value(), x0, y0);
+            }
+
+
+            g.dispose();
+
+            System.out.println("4번");
+            // 4. BufferedImage → ByteArrayOutputStream (JPG 저장)
+            ImageIO.write(image, "png", outputStream);
+            byte[] imageBytes = outputStream.toByteArray();
+
+            System.out.println("5번");
+            // 5. S3 업로드
+            String fileName = generateImageFileName();
+            String s3Key = "filled-docs/" + fileName;
+            return s3Service.uploadImageBytes(s3Key, imageBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new FileNotCreatedException();
+        }
+    }
+
+    /**
+     * S3 url을 받아 양식 위에 문서 작성 로직
+     */
+    public String fillImageFromS3(String s3ImageUrl, List<WriteDocsReq> fields) {
+        try (
+                InputStream imageStream = s3Service.downloadFile(s3ImageUrl);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ) {
+            // 1. 이미지 불러오기
+            BufferedImage image = ImageIO.read(imageStream);
+            if (image == null) {
+                throw new IOException("이미지 로딩 실패");
+            }
+
+            // 2. 폰트 설정
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("fonts/NanumGothic.ttf");
+            if (fontStream == null) throw new FontNotFoundException();
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(12f);
+
+            Graphics2D g = image.createGraphics();
+            g.setFont(font);
+            g.setColor(Color.BLACK);
+
+            // 3. 텍스트 삽입
+            for (WriteDocsReq field : fields) {
+                if (field.value() == null) continue;
+                // bbox : [x0, y0, x1, y1]
+                List<Double> bbox = field.bbox();
 
                 float imgWidth = image.getWidth();
                 float imgHeight = image.getHeight();
@@ -66,8 +161,9 @@ public class PdfService {
                 float x1 = bbox.get(2).floatValue() * imgWidth / 1000;  // x1
                 float y1 = bbox.get(3).floatValue() * imgHeight / 1000; // y1
 
-                // 텍스트를 박스 안에 적절히 배치 (y좌표 보정)
+                // 텍스트를 박스 안에 적절히 배치 (좌표 보정)
                 float boxHeight = y1 - y0;
+                x0 += 15f;
                 y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
 
 
@@ -156,17 +252,13 @@ public class PdfService {
                 PDDocument document = PDDocument.load(pdfBytes);
                 ByteArrayOutputStream imageOutputStream = new ByteArrayOutputStream();
             ) {
-            System.out.println("잘 들어와요22");
             PDFRenderer renderer = new PDFRenderer(document);
 
-            System.out.println("잘 들어와요333");
             // 첫 페이지를 이미지로 변환
             BufferedImage bim = renderer.renderImageWithDPI(0, 300);
 
-            System.out.println("잘 들어와요4444");
             ImageIO.write(bim, "jpg", imageOutputStream);
             byte[] imageBytes = imageOutputStream.toByteArray();
-            System.out.println("잘 들어와요5");
 
             String fileName = generateImageFileName();
             String s3Key = "pdf-preview/" + fileName;
