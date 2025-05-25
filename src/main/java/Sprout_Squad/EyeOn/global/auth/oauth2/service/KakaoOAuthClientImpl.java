@@ -37,6 +37,10 @@ public class KakaoOAuthClientImpl implements KakaoOAuthClient {
     public GetAccessTokenRes getAccessToken(String code) {
         String requestUrl = "https://kauth.kakao.com/oauth/token";
 
+        System.out.println("▶️ 인가 코드 확인: " + code);
+        System.out.println("▶️ 리디렉션 URI: " + kakaoRedirectUri);
+        System.out.println("▶️ 클라이언트 ID: " + kakaoApiKey);
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
@@ -57,6 +61,7 @@ public class KakaoOAuthClientImpl implements KakaoOAuthClient {
         );
 
         String accessToken = response.getBody().get("access_token").toString();
+        System.out.println("✅ 카카오 AccessToken 응답: " + response.getBody());
 
         return GetAccessTokenRes.from(accessToken);
     }
