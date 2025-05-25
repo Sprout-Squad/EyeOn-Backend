@@ -26,9 +26,6 @@ public class KakaoOAuthClientImpl implements KakaoOAuthClient {
     @Value("${KAKAO_REDIRECT_URI}")
     private String kakaoRedirectUri;
 
-    @Value("${KAKAO_CLIENT_SECRET}")
-    private String kakaoClientSecret;
-
 
     /**
      * 인가 코드로 AccessToken 요청
@@ -49,21 +46,30 @@ public class KakaoOAuthClientImpl implements KakaoOAuthClient {
         params.add("client_id", kakaoApiKey);
         params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", code);
-        params.add("client_secret", kakaoClientSecret);
+
+        System.out.println("📦 요청 파라미터:");
+        params.forEach((k, v) -> System.out.println("  " + k + ": " + v));
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
-                requestUrl,
-                HttpMethod.POST,
-                request,
-                Map.class
-        );
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    requestUrl,
+                    HttpMethod.POST,
+                    request,
+                    Map.class
+            );
 
-        String accessToken = response.getBody().get("access_token").toString();
-        System.out.println("✅ 카카오 AccessToken 응답: " + response.getBody());
+            Map<String, Object> body = response.getBody();
+            System.out.println("✅ 카카오 AccessToken 응답: " + body);
 
-        return GetAccessTokenRes.from(accessToken);
+            String accessToken = body.get("access_token").toString();
+            return GetAccessTokenRes.from(accessToken);
+        } catch (Exception e) {
+            System.err.println("❌ 카카오 토큰 요청 중 예외 발생:");
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     /**
