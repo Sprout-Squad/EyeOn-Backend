@@ -11,6 +11,7 @@ public record GetDocumentRes(
         LocalDateTime createdAt,
         DocumentType documentType,
         long documentSize,
+        String documentImgUrl,
         String documentUrl
 ) {
     public static GetDocumentRes of(Document document, long fileSize) {
@@ -20,6 +21,7 @@ public record GetDocumentRes(
                 document.getCreatedAt(),
                 document.getDocumentType(),
                 fileSize,
+                document.getDocumentImageUrl(),
                 document.getDocumentUrl());
     }
 }
