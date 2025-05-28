@@ -192,8 +192,8 @@ public class PdfService {
 
                     // 이미지 그리기
                     g.drawImage(personalPhoto, drawX, drawY, drawW, drawH, null);
-                    g.setColor(Color.BLUE); // 테두리 색 지정
-                    g.drawRect(drawX, drawY, drawW, drawH);
+//                    g.setColor(Color.BLUE); // 테두리 색 지정
+//                    g.drawRect(drawX, drawY, drawW, drawH);
                 } else { // 텍스트를 박스 안에 적절히 배치 (좌표 보정)
                     x0 += 15f;
                     y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
