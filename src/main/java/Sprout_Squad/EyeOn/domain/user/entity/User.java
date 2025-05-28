@@ -52,9 +52,9 @@ public class User extends BaseEntity {
     @Column(name="is_blind", nullable = false)
     private TF isBlind;
 
-    public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq) {
+    public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq, String profileImageUrl) {
         this.address = modifyUserInfoReq.address();
-        this.profileImageUrl = modifyUserInfoReq.profileImageUrl();
+        this.profileImageUrl = profileImageUrl;
     }
 
     public static User toEntity(SignUpReq signUpReq, Gender gender) {

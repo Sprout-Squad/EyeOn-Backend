@@ -11,6 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
@@ -24,10 +26,12 @@ public class UserController {
     }
 
     @PutMapping("/modify")
-    public ResponseEntity<SuccessResponse<Void>> modifyUserInfo(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid ModifyUserInfoReq modifyUserInfoReq) {
-        userService.modifyUserInfo(modifyUserInfoReq, userPrincipal);
-        return ResponseEntity.ok(SuccessResponse.empty());
+    public ResponseEntity<SuccessResponse<ModifyUserInfoRes>> modifyUserInfo(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("data") @Valid ModifyUserInfoReq modifyUserInfoReq) throws IOException {
+        ModifyUserInfoRes modifyUserInfoRes = userService.modifyUserInfo(modifyUserInfoReq, file, userPrincipal);
+        return ResponseEntity.ok(SuccessResponse.from(modifyUserInfoRes));
     }
 
     @GetMapping("/info")
