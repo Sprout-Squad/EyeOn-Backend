@@ -30,4 +30,21 @@ public enum DocumentType {
                 throw new IllegalArgumentException("정의되지 않은 문서 타입: " + type);
         }
     }
+
+    public String getKoreanFolderName() {
+        switch (this) {
+            case RESUME:
+                return "이력서";
+            case CERTIFICATE:
+                return "재직증명서";
+            case CONSENT:
+                return "위임장";
+            case SELF_INTRO:
+                return "자기소개서";
+            case REPORT:
+                return "업무보고서";
+            default:
+                return "기타";
+        }
+    }
 }

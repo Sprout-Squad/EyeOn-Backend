@@ -93,7 +93,7 @@ public class FieldTargetMapper {
         map.put("B-PERSONAL-NAME", "B-PERSONAL-NAME-FIELD");
         map.put("B-PERSONAL-PHONE", "B-PERSONAL-PHONE-FIELD");
         map.put("B-PERSONAL-RRN", "B-PERSONAL-RRN-FIELD");
-        map.put("B-PERSONAL-PHOTO", "B-PERSONAL-PHOTO-FIELD");
+        map.put("B-PERSONAL-PHOTO", "B-PERSONAL-PHOTO");
 
         fieldToTargetField = Collections.unmodifiableMap(map);
     }

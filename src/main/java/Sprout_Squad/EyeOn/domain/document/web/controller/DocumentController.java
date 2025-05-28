@@ -21,9 +21,6 @@ import java.util.List;
 @RequestMapping("/api/document")
 public class DocumentController {
     private final DocumentService documentService;
-    private final FlaskService flaskService;
-    private final PdfService pdfService;
-    private final S3Service s3Service;
 
     // 문서 업로드
     @PostMapping
