@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -161,21 +162,51 @@ public class PdfService {
                 float x1 = bbox.get(2).floatValue() * imgWidth / 1000;  // x1
                 float y1 = bbox.get(3).floatValue() * imgHeight / 1000; // y1
 
-                // 텍스트를 박스 안에 적절히 배치 (좌표 보정)
+                float boxWidth = x1 - x0;
                 float boxHeight = y1 - y0;
-                x0 += 15f;
-                y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
 
+                if("B-PERSONAL-PHOTO".equals(field.field())){
+                    // 이미지 URL 또는 경로로 BufferedImage 로드
+                    BufferedImage personalPhoto = null;
+                    try {
+                        // URL에서 불러오기
+                        URL url = new URL(field.value());
+                        personalPhoto = ImageIO.read(url);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        continue; // 이미지 못 불러오면 건너뜀
+                    }
+                    // 이미지 크기 (원본)
+                    int imgW = personalPhoto.getWidth();
+                    int imgH = personalPhoto.getHeight();
 
-                g.setColor(Color.BLACK);
-                //g.drawRect((int) x0, (int) y0, (int) (x1 - x0), (int) boxHeight); // 디버깅용 사각형 그리기
+                    // 박스 크기보다 작게 줄일 비율
+                    double scale = 0.95;
 
-                // 폰트 크기를 bbox 높이에 맞춰 동적으로 설정 (선택 사항)
-                Font dynamicFont = font.deriveFont( 20f);  // 박스 높이에 맞춰 폰트 크기 조정
-                g.setFont(dynamicFont);
+                    int drawW = (int)(boxWidth * scale);
+                    int drawH = (int)(boxHeight * scale);
 
-                // 텍스트 삽입
-                g.drawString(field.value(), x0, y0);
+                    // 중앙 위치 계산
+                    int drawX = (int) (x0 + ((int)boxWidth - drawW) / 2.0);
+                    int drawY = (int) (y0 + ((int)boxHeight - drawH) / 2.0);
+
+                    // 이미지 그리기
+                    g.drawImage(personalPhoto, drawX, drawY, drawW, drawH, null);
+                    g.setColor(Color.BLUE); // 테두리 색 지정
+                    g.drawRect(drawX, drawY, drawW, drawH);
+                } else { // 텍스트를 박스 안에 적절히 배치 (좌표 보정)
+                    x0 += 15f;
+                    y0 += boxHeight * 0.75f; // 텍스트를 박스의 적절한 위치로 이동 (상단보다는 조금 아래쪽)
+
+                    g.setColor(Color.BLACK);
+
+                    // 폰트 크기를 bbox 높이에 맞춰 동적으로 설정
+                    Font dynamicFont = font.deriveFont(20f);  // 박스 높이에 맞춰 폰트 크기 조정
+                    g.setFont(dynamicFont);
+
+                    // 텍스트 삽입
+                    g.drawString(field.value(), x0, y0);
+                }
             }
 
             g.dispose();

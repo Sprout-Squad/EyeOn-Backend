@@ -111,6 +111,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional
     public WriteDocsRes writeDocument(UserPrincipal userPrincipal, Long formId, List<WriteDocsReq> writeDocsReqList) throws IOException {
+        System.out.println("리스트 : " + writeDocsReqList);
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 

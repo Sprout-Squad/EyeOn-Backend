@@ -165,6 +165,7 @@ public class FlaskService {
      */
     private String resolveValue(String baseLabel, User user) {
         return switch (baseLabel) {
+            case "B-PERSONAL-PHOTO" -> user.getProfileImageUrl();
             case "B-PERSONAL-NAME", "B-GRANTOR-NAME", "B-DELEGATE-NAME", "B-NAME", "B-SIGN-NAME" -> user.getName();
             case "B-PERSONAL-RRN", "B-GRANTOR-RRN", "B-DELEGATE-RRN" -> user.getResidentNumber();
             case "B-PERSONAL-PHONE", "B-GRANTOR-PHONE", "B-DELEGATE-PHONE" -> user.getPhoneNumber();
@@ -222,7 +223,7 @@ public class FlaskService {
         for (int i = 0; i < labels.size(); i++) {
             String label = labels.get(i);
 
-            if (label.endsWith("-FIELD")) {
+            if (label.endsWith("-FIELD") || label.equals("B-PERSONAL-PHOTO")) {
                 String field = label.replace("-FIELD", "");
                 String targetField = label;
                 String displayName = labelMap.getOrDefault(field, field);
