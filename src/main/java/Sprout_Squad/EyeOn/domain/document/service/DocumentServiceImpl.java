@@ -29,7 +29,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +45,6 @@ public class DocumentServiceImpl implements DocumentService {
     private final PdfService pdfService;
     private final FormRepository formRepository;
     private final FlaskService flaskService;
-    private final FieldLabelMapper fieldLabelMapper;
 
     /**
      * 사용자의 문서 하나 상세 조회
@@ -124,15 +126,16 @@ public class DocumentServiceImpl implements DocumentService {
         // pdf url
         byte[] imgToPdf = pdfService.convertImageToPdf(s3Service.downloadFile(imgUrl));
 
+        DocumentType documentType = DocumentType.valueOf(form.getFormType().name());
+
         // S3에 pdf 업로드
         String fileName = s3Service.generatePdfFileName();
         int dotIndex = fileName.lastIndexOf('.');
-        String nameOnly = (dotIndex != -1) ? fileName.substring(0, dotIndex) : fileName;
         String pdfUrl = s3Service.uploadPdfBytes(fileName, imgToPdf);
 
-        DocumentType documentType = DocumentType.valueOf(form.getFormType().name());
+        String displayName = "["+ LocalDate.now()+"] " + documentType.getKoreanFolderName();
 
-        Document document = Document.toEntity(documentType, imgUrl, pdfUrl, form, nameOnly, user);
+        Document document = Document.toEntity(documentType, imgUrl, pdfUrl, form, displayName, user);
         documentRepository.save(document);
 
         return WriteDocsRes.from(document);
