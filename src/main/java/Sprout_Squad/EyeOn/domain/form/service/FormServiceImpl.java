@@ -60,7 +60,6 @@ public class FormServiceImpl implements FormService {
         } else if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png")) {
             fileName = s3Service.generateFileName(file);
             fileUrl = s3Service.uploadFile(fileName, file);
-
         } else {
             throw new UnsupportedFileTypeException();
         }

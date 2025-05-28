@@ -58,17 +58,36 @@ public class User extends BaseEntity {
     }
 
     public static User toEntity(SignUpReq signUpReq, Gender gender) {
+        String rawPhone = signUpReq.phoneNumber();
+        String formattedPhone = formatPhoneNumber(rawPhone);
+
         return User.builder()
                 .kakaoId(signUpReq.kakaoId())
                 .name(signUpReq.name())
                 .residentNumber(signUpReq.residentNumber())
                 .residentDate(signUpReq.residentDate())
                 .gender(gender)
-                .phoneNumber(signUpReq.phoneNumber())
+                .phoneNumber(formattedPhone)
                 .address(signUpReq.address())
                 .email(signUpReq.email())
                 .profileImageUrl(signUpReq.profileImageUrl())
                 .isBlind(signUpReq.isBlind())
                 .build();
     }
+
+    // 전화번호 포맷
+    private static String formatPhoneNumber(String number) {
+        if (number == null) return null;
+
+        number = number.replaceAll("[^0-9]", ""); // 숫자만 추출
+
+        if (number.length() == 10) {
+            return number.replaceFirst("(\\d{3})(\\d{3})(\\d{4})", "$1-$2-$3");
+        } else if (number.length() == 11) {
+            return number.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+        } else {
+            return number; // 길이 이상하면 그대로 반환
+        }
+    }
+
 }
