@@ -1,5 +1,6 @@
 package Sprout_Squad.EyeOn.global.external.service;
 
+import Sprout_Squad.EyeOn.domain.document.entity.enums.DocumentType;
 import Sprout_Squad.EyeOn.global.external.exception.S3UrlInvalidException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -155,11 +158,18 @@ public class S3Service {
      */
     public String generateFileName(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String uuid = UUID.randomUUID().toString();
-        String today = LocalDate.now().toString();
 
-        return "eyeon/" + today + "/" + uuid + extension;
+        // 파일 확장자
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+
+        // 파일명 (확장자 제외)에서 특수문자 제거 또는 대체
+        String baseName = originalFilename.substring(0, originalFilename.lastIndexOf("."))
+                .replaceAll("[^a-zA-Z0-9-_]", "_");
+
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+
+        // 최종 경로
+        return "eyeon/" + timestamp + "/" + baseName + extension;
     }
 
     public String generatePdfFileName() {
