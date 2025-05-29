@@ -173,9 +173,9 @@ public class FlaskService {
         return switch (baseLabel) {
             case "B-PERSONAL-PHOTO" -> user.getProfileImageUrl();
             case "B-PERSONAL-NAME", "B-GRANTOR-NAME", "B-NAME", "B-SIGN-NAME" -> user.getName();
-            case "B-PERSONAL-RRN", "B-GRANTOR-RRN", "B-DELEGATE-RRN" -> user.getResidentNumber();
-            case "B-PERSONAL-PHONE", "B-GRANTOR-PHONE", "B-DELEGATE-PHONE" -> user.getPhoneNumber();
-            case "B-PERSONAL-ADDR", "B-GRANTOR-ADDR", "B-DELEGATE-ADDR" -> user.getAddress();
+            case "B-PERSONAL-RRN", "B-GRANTOR-RRN" -> user.getResidentNumber();
+            case "B-PERSONAL-PHONE", "B-GRANTOR-PHONE" -> user.getPhoneNumber();
+            case "B-PERSONAL-ADDR", "B-GRANTOR-ADDR" -> user.getAddress();
             case "B-SIGN-YEAR" -> String.valueOf(year);
             case "B-SIGN-MONTH" -> String.valueOf(month);
             case "B-SIGN-DAY" -> String.valueOf(day);
