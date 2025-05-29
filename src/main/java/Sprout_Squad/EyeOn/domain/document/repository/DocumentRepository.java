@@ -14,5 +14,5 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
         return findById(documentId).orElseThrow(DocumentNotFoundException::new);
     }
 
-    List<Document> findAllByUser(User user);
+    List<Document> findAllByUserOrderByCreatedAtDesc(User user);
 }

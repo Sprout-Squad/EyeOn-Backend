@@ -17,7 +17,6 @@ import Sprout_Squad.EyeOn.global.external.service.PdfService;
 import Sprout_Squad.EyeOn.global.external.service.S3Service;
 import Sprout_Squad.EyeOn.global.flask.dto.GetFieldForModifyRes;
 import Sprout_Squad.EyeOn.global.flask.dto.GetModelResForModify;
-import Sprout_Squad.EyeOn.global.flask.mapper.FieldLabelMapper;
 import Sprout_Squad.EyeOn.global.flask.service.FlaskService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,9 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,7 +68,7 @@ public class DocumentServiceImpl implements DocumentService {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
-        List<Document> documentList = documentRepository.findAllByUser(user);
+        List<Document> documentList = documentRepository.findAllByUserOrderByCreatedAtDesc(user);
 
         return documentList.stream()
                 .map(document ->{
