@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -164,12 +165,20 @@ public class FlaskService {
      * 필드 라벨에 따라 사용자 정보를 채워넣어 반환
      */
     private String resolveValue(String baseLabel, User user) {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        int day = now.getDayOfMonth();
+
         return switch (baseLabel) {
             case "B-PERSONAL-PHOTO" -> user.getProfileImageUrl();
             case "B-PERSONAL-NAME", "B-GRANTOR-NAME", "B-DELEGATE-NAME", "B-NAME", "B-SIGN-NAME" -> user.getName();
             case "B-PERSONAL-RRN", "B-GRANTOR-RRN", "B-DELEGATE-RRN" -> user.getResidentNumber();
             case "B-PERSONAL-PHONE", "B-GRANTOR-PHONE", "B-DELEGATE-PHONE" -> user.getPhoneNumber();
             case "B-PERSONAL-ADDR", "B-GRANTOR-ADDR", "B-DELEGATE-ADDR" -> user.getAddress();
+            case "B-SIGN-YEAR" -> String.valueOf(year);
+            case "B-SIGN-MONTH" -> String.valueOf(month);
+            case "B-SIGN-DAY" -> String.valueOf(day);
             case "B-PERSONAL-EMAIL" -> user.getEmail();
             default -> null; // 나머지는 프론트에서 받기
         };
