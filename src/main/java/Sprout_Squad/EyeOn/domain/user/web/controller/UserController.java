@@ -28,8 +28,8 @@ public class UserController {
     @PutMapping("/modify")
     public ResponseEntity<SuccessResponse<ModifyUserInfoRes>> modifyUserInfo(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestPart("file") MultipartFile file,
-            @RequestPart("data") @Valid ModifyUserInfoReq modifyUserInfoReq) throws IOException {
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "data", required = false) @Valid ModifyUserInfoReq modifyUserInfoReq) throws IOException {
         ModifyUserInfoRes modifyUserInfoRes = userService.modifyUserInfo(modifyUserInfoReq, file, userPrincipal);
         return ResponseEntity.ok(SuccessResponse.from(modifyUserInfoRes));
     }

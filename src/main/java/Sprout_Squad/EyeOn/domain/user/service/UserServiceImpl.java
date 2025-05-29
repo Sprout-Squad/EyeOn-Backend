@@ -65,9 +65,11 @@ public class UserServiceImpl implements UserService {
         // 사용자가 존재하지 않을 경우 -> UserNotFoundException
         User user = userRepository.getUserById(userPrincipal.getId());
 
-        String fileName = s3Service.generateFileName(file);
-        String fileUrl = s3Service.uploadFile(fileName, file);
-
+        String fileUrl = null;
+        if (file != null && !file.isEmpty()) {
+            String fileName = s3Service.generateFileName(file);
+            fileUrl = s3Service.uploadFile(fileName, file);
+        }
         user.modifyUserInfo(modifyUserInfoReq, fileUrl);
         return ModifyUserInfoRes.from(user);
     }
