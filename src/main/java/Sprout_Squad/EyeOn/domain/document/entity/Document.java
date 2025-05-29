@@ -58,7 +58,7 @@ public class Document extends BaseEntity {
                 .form(form)
                 .documentName(fileName) // 양식 이름과 동일하게 사용
                 .documentImageUrl(imageUrl) // 작성된 문서 이미지 형태
-                .documentUrl(documentUrl) // pdf 형태
+                .documentUrl(imageUrl) // pdf 형태 -> image 그대로
                 .documentType(documentType)
                 .build();
     }
