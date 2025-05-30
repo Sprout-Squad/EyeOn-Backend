@@ -54,7 +54,9 @@ public class User extends BaseEntity {
 
     public void modifyUserInfo(ModifyUserInfoReq modifyUserInfoReq, String profileImageUrl) {
         this.address = modifyUserInfoReq.address();
-        this.profileImageUrl = profileImageUrl;
+        if (profileImageUrl != null) {
+            this.profileImageUrl = profileImageUrl;
+        }
     }
 
     public static User toEntity(SignUpReq signUpReq, Gender gender) {
