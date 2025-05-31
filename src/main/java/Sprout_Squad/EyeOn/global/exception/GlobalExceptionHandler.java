@@ -1,6 +1,7 @@
 package Sprout_Squad.EyeOn.global.exception;
 
 
+import Sprout_Squad.EyeOn.global.auth.exception.SignupRequiredException;
 import Sprout_Squad.EyeOn.global.response.ErrorResponse;
 import Sprout_Squad.EyeOn.global.response.code.GlobalErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
 @Slf4j
@@ -70,6 +72,30 @@ public class GlobalExceptionHandler {
         ErrorResponse error = ErrorResponse.of(e.getErrorCode());
         return ResponseEntity.status(error.getHttpStatus()).body(error);
     }
+
+    /* 카카오 로그인을 위한 UserNotFoundException 에러 처리 */
+    @ExceptionHandler(SignupRequiredException.class)
+    private ResponseEntity<ErrorResponse> handleUserSignupRequiredException(SignupRequiredException e) {
+        log.error("UserNotFoundException error", e.getErrorCode().getMessage());
+        ErrorResponse error = ErrorResponse.of(
+                e.getErrorCode(),
+                e.getErrorCode().getMessage(),
+                e.getExtra()
+        );
+        return ResponseEntity.status(error.getHttpStatus()).body(error);
+    }
+
+    /* RequestPart 누락 시 에러 처리 */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    private ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
+        log.error("MissingServletRequestPartException Error: {}", e.getRequestPartName());
+        ErrorResponse error = ErrorResponse.of(
+                GlobalErrorCode.BAD_REQUEST_ERROR,
+                e.getRequestPartName() + " 파트가 요청에 없습니다."
+        );
+        return ResponseEntity.status(error.getHttpStatus()).body(error);
+    }
+
 
     /* 나머지 예외 처리 */
     @ExceptionHandler(Exception.class)

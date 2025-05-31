@@ -24,9 +24,44 @@ repositories {
 }
 
 dependencies {
+	// JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Valid
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// oauth2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// S3
+	implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1')
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+
+	implementation 'org.json:json:20240303'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// mysql
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// pdfbox
+	implementation 'org.apache.pdfbox:pdfbox:2.0.30'
+
+	// json 파싱
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+	// MockMultipartFile 사용을 위한 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
